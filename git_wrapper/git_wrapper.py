@@ -347,8 +347,13 @@ class GitWrapper(ModuleHelper):
         # a0b7719a3c9
         self.logger.debug('hex_sha_short: {}'.format(hex_sha_short))
 
-        reference = '{}'.format(repo.head.reference)
-        # bugfix/some-branch-name
+        try:
+            reference = '{}'.format(repo.head.reference)
+            # bugfix/some-branch-name
+        except TypeError as e:
+            self.logger.debug('HEAD is detached')
+            reference = head_commit.hexsha
+            # a0b7719a3c96001a83a5efefc9ed53dbda85fff6
         self.logger.debug('reference: {}'.format(reference))
 
         repo_remotes = ', '.join([str(remote) for remote in repo.remotes])
@@ -367,6 +372,10 @@ class GitWrapper(ModuleHelper):
         # false
         self.logger.debug('is_dirty: {}'.format(is_dirty))
 
+        is_detached = repo.head.is_detached()
+        # false
+        self.logger.debug('is_detached: {}'.format(is_detached))
+
         project_name = os.path.splitext(os.path.basename(repo_remotes_urls))[0]
         # buildsystem
         self.logger.debug('project_name: {}'.format(project_name))
@@ -383,6 +392,7 @@ class GitWrapper(ModuleHelper):
         self.git_dict['repo_remotes'] = repo_remotes
         self.git_dict['repo_remotes_urls'] = repo_remotes_urls
         self.git_dict['is_dirty'] = is_dirty
+        self.git_dict['is_detached'] = is_detached
         self.git_dict['project_name'] = project_name
         # self.git_dict['untracked_files'] = untracked_files_list
 
