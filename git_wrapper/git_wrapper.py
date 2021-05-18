@@ -372,7 +372,7 @@ class GitWrapper(ModuleHelper):
         # false
         self.logger.debug('is_dirty: {}'.format(is_dirty))
 
-        is_detached = repo.head.is_detached()
+        is_detached = repo.head.is_detached
         # false
         self.logger.debug('is_detached: {}'.format(is_detached))
 
