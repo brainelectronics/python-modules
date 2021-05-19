@@ -56,9 +56,9 @@ class StructureInfoGenerator(ModuleHelper):
                 # crawl child folder in recursive way
                 info_dict[ele.name] = self._process_directory(root_path=ele)
             elif ele.is_file():
-                # check for an info json file
-                if ele.name == 'info.json':
-                    info_dict['info'] = 'info.json'
+                # check for an compilation info json file
+                if ele.name == 'compilation-info.json':
+                    info_dict['info'] = 'compilation-info.json'
                 else:
                     # check for detailed informations about this folder
                     for name in ['targets.txt', 'brief.txt']:
