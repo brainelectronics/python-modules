@@ -235,6 +235,25 @@ class GitWrapper(ModuleHelper):
 
         return tags_of_branch
 
+    def get_available_ref(self, repo=None) -> str:
+        """
+        Get the most recent tag that is reachable from a commit.
+
+        :param      repo:       The repo
+        :type       repo:       Repo, optional
+
+        :returns:   The available reference name.
+        :rtype:     string
+        """
+        available_ref = ""
+
+        this_repo = self.get_valid_repo(repo=repo)
+
+        if this_repo is not None:
+            available_ref = this_repo.git.describe()
+
+        return available_ref
+
     def convert_string_to_commit_obj(self,
                                      commits: List[str],
                                      repo=None) -> List[Commit]:
@@ -343,8 +362,8 @@ class GitWrapper(ModuleHelper):
         # a0b7719a3c96001a83a5efefc9ed53dbda85fff6
         self.logger.debug('hex_sha: {}'.format(hex_sha))
 
-        hex_sha_short = head_commit.hexsha[0:11]
-        # a0b7719a3c9
+        hex_sha_short = head_commit.hexsha[0:8]
+        # a0b7719a
         self.logger.debug('hex_sha_short: {}'.format(hex_sha_short))
 
         try:
@@ -380,6 +399,41 @@ class GitWrapper(ModuleHelper):
         # buildsystem
         self.logger.debug('project_name: {}'.format(project_name))
 
+        # tag: 0.2.0
+        # tag.commit: abbd27b1f19ccf8adcf58a6d0c0751bb231c5c01
+        repo_tags = []
+        for tag in repo.tags:
+            repo_tags.append(str(tag))
+
+        self.logger.debug('tags alphabetically: {}'.format(repo_tags))
+        # ['0.1.0', '0.2.0']
+
+        # tags = sorted(repo.tags, key=lambda t: t.commit.committed_datetime)
+        # tags = sorted(repo.tags, key=lambda t: t.tag.tagged_date)
+        # latest_tag = tags[0]
+        # logger.debug('Sorted tags: {}'.format(tags))
+
+        # sorted tags with date and time
+        # [(datetime.datetime(2020, 11, 22, 13, 7, 39, tzinfo=<git.objects.util.tzoffset object at 0x1106db850>), '2.0.0'),
+        # (datetime.datetime(2020, 10, 25, 16, 26, 53, tzinfo=<git.objects.util.tzoffset object at 0x1106db9d0>)]
+        # sorted_tags = sorted([(tag.commit.committed_datetime, str(tag)) for tag in repo.tags], reverse=True)
+        sorted_date_tags = sorted([(tag.commit.committed_datetime, str(tag)) for tag in repo.tags], reverse=True)
+        self.logger.debug('tags with date info: {}'.format(sorted_date_tags))
+        # [(datetime.datetime(2021, 1, 7, 18, 45, 21,
+        #   tzinfo=<git.objects.util.tzoffset object at 0x109963730>),
+        #   '0.2.0'),
+        #  (datetime.datetime(2020, 12, 14, 17, 38, 7,
+        #   tzinfo=<git.objects.util.tzoffset object at 0x1099636d0>),
+        #   '0.1.0')]
+
+        sorted_tags = [x[1] for x in sorted_date_tags]
+        self.logger.debug('tags by date: {}'.format(sorted_tags))
+        # ['0.2.0', '0.1.0']
+
+        recent_tag = self.get_available_ref(repo=repo)
+        self.logger.debug('describe: {}'.format(recent_tag))
+        # 0.2.0-64-g3d21298
+
         # clear dict
         self.git_dict.clear()
 
@@ -394,6 +448,10 @@ class GitWrapper(ModuleHelper):
         self.git_dict['is_dirty'] = is_dirty
         self.git_dict['is_detached'] = is_detached
         self.git_dict['project_name'] = project_name
+        self.git_dict['tags'] = repo_tags
+        self.git_dict['sorted_tags'] = sorted_tags
+        self.git_dict['sorted_date_tags'] = sorted_date_tags
+        self.git_dict['describe'] = recent_tag
         # self.git_dict['untracked_files'] = untracked_files_list
 
         return True
