@@ -5,7 +5,7 @@
 #  @author       Jonas Scharpf (info@brainelectronics.de) brainelectronics
 #  @file         generate_vcs.py
 #  @date         June, 2021
-#  @version      0.1.0
+#  @version      0.2.0
 #  @brief        Generate vcsInfo.h file based on available Git informations
 #
 #  @usage
@@ -347,6 +347,13 @@ def fill_vcs_template(lines: list,
         for key, val in content_dict.items():
             placeholder = '${}$'.format(key)
             if placeholder in line:
+                if placeholder == '$COMMIT_SHA_I$':
+                    print('add commit sha as comment')
+                    logger.debug('Add commit sha as comment before {}'.
+                                 format(placeholder))
+                    commit_sha_comment = '// {}'.format(git_dict['sha_short'])
+                    changed_lines.append(commit_sha_comment)
+
                 logger.debug('found: {}, replace with: {}'.format(placeholder,
                                                                   val))
                 line = line.replace(placeholder, str(val))
