@@ -348,7 +348,6 @@ def fill_vcs_template(lines: list,
             placeholder = '${}$'.format(key)
             if placeholder in line:
                 if placeholder == '$COMMIT_SHA_I$':
-                    print('add commit sha as comment')
                     logger.debug('Add commit sha as comment before {}'.
                                  format(placeholder))
                     commit_sha_comment = '// {}'.format(git_dict['sha_short'])
