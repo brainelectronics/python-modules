@@ -4,8 +4,8 @@
 #
 #  @author       Jonas Scharpf (jonas.scharpf@hilti.com) SCHAJONAS
 #  @file         generate_structure_info.py
-#  @date         May, 2021
-#  @version      0.1.0
+#  @date         June, 2021
+#  @version      0.1.1
 #  @brief        Generate structure information data JSON file
 #
 #  This script ...
@@ -37,10 +37,10 @@
 __author__ = "Jonas Scharpf"
 __copyright__ = "Copyright by brainelectronics, ALL RIGHTS RESERVED"
 __credits__ = ["Jonas Scharpf"]
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 __maintainer__ = "Jonas Scharpf"
 __email__ = "jonas@brainelectronics.de"
-__status__ = "Alpha"
+__status__ = "Beta"
 
 import argparse
 import json
@@ -233,7 +233,7 @@ if __name__ == '__main__':
     print_pretty = args.print_pretty
 
     # create objects
-    sig = StructureInfoGenerator(logger=sig_logger)
+    sig = StructureInfoGenerator(logger=sig_logger, quiet=not args.debug)
 
     # create and get the info dict
     sig.create_info_dict(root_path=root_path)

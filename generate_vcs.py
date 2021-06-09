@@ -5,7 +5,7 @@
 #  @author       Jonas Scharpf (info@brainelectronics.de) brainelectronics
 #  @file         generate_vcs.py
 #  @date         June, 2021
-#  @version      0.2.0
+#  @version      0.2.1
 #  @brief        Generate vcsInfo.h file based on available Git informations
 #
 #  @usage
@@ -40,10 +40,10 @@
 __author__ = "Jonas Scharpf"
 __copyright__ = "Copyright by brainelectronics, ALL RIGHTS RESERVED"
 __credits__ = ["Jonas Scharpf"]
-__version__ = "0.1.0"
+__version__ = "0.2.1"
 __maintainer__ = "Jonas Scharpf"
 __email__ = "jonas@brainelectronics.de"
-__status__ = "Alpha"
+__status__ = "Beta"
 
 import argparse
 import datetime
@@ -493,7 +493,7 @@ if __name__ == '__main__':
     print_content = args.print_content
     save_content = args.save_content
 
-    git_wrapper = GitWrapper(logger=logger)
+    git_wrapper = GitWrapper(logger=logger, quiet=not args.debug)
     git_wrapper.parse_git_informations(repo_path=repo_path)
     git_dict = git_wrapper.get_git_dict()
 
