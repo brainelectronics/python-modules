@@ -11,7 +11,10 @@ from datetime import datetime
 import json
 import logging
 from pathlib import Path
+import random
+import string
 import sys
+import time
 from typing import List
 import yaml
 
@@ -98,8 +101,8 @@ class ModuleHelper(object):
             result = True
         else:
             if raise_error:
-                raise ValueError('{} is not valid option of {}'.format(option,
-                                                                       options))
+                raise ValueError('{} is no valid option of {}'.format(option,
+                                                                      options))
 
         return result
 
@@ -115,9 +118,20 @@ class ModuleHelper(object):
         :returns:   Formatted timestamp
         :rtype:     str
         """
-        timestamp_text = datetime.utcfromtimestamp(timestamp).strftime(format)
+        return datetime.fromtimestamp(timestamp).strftime(format)
 
-        return timestamp_text
+    def get_unix_timestamp(self) -> int:
+        """
+        Get the unix timestamp.
+
+        :returns:   The unix timestamp.
+        :rtype:     int
+        """
+        return (int(time.time()))
+
+    def get_random_string(self, length: int) -> str:
+        return ''.join(random.choices(string.ascii_uppercase + string.digits,
+                                      k=length))
 
     def sort_by_name(self, a_list: list, descending: bool = False) -> bool:
         """
@@ -233,7 +247,7 @@ class ModuleHelper(object):
             self.logger.warning('Failed due to YAMLError: {}'.format(e))
         except Exception as e:
             # use warning level instead of exception level to not raise error
-            self.logger.warning('Failed to load the file content: {}'.format(e))
+            self.logger.warning('Failed to load file content: {}'.format(e))
 
         return content
 
@@ -302,7 +316,7 @@ class ModuleHelper(object):
             self.logger.warning('Failed due to ValueError: {}'.format(e))
         except Exception as e:
             # use warning level instead of exception level to not raise error
-            self.logger.warning('Failed to load the file content: {}'.format(e))
+            self.logger.warning('Failed to load file content: {}'.format(e))
 
         return content
 
@@ -328,8 +342,8 @@ class ModuleHelper(object):
 
         if not self.check_option_values(options=supported_file_types,
                                         option=file_type):
-            self.logger.warning('{} is not valid option of {}'.format(file_type,
-                                                                      supported_file_types))
+            self.logger.warning('{} is not valid option of {}'.
+                                format(file_type, supported_file_types))
             return result
 
         # check for existing parent directory of specified file
@@ -371,8 +385,8 @@ class ModuleHelper(object):
 
         if not self.check_option_values(options=supported_file_types,
                                         option=file_type):
-            self.logger.warning('{} is not valid option of {}'.format(file_type,
-                                                                      supported_file_types))
+            self.logger.warning('{} is not valid option of {}'.
+                                format(file_type, supported_file_types))
             return result
 
         # check for existing parent directory of specified file
@@ -405,7 +419,8 @@ class ModuleHelper(object):
             with open(str(file_path), 'r') as input_file:
                 content = input_file.read()
 
-            self.logger.debug('Content of {} read successfully'.format(file_path))
+            self.logger.debug('Content of {} read successfully'.
+                              format(file_path))
         except OSError as e:
             # use warning level instead of exception level to not raise error
             self.logger.warning('Failed to read the file content {}'.format(e))
@@ -438,8 +453,8 @@ class ModuleHelper(object):
 
         if not self.check_option_values(options=supported_file_modes,
                                         option=mode):
-            self.logger.warning('{} is not valid option of {}'.format(mode,
-                                                                      supported_file_modes))
+            self.logger.warning('{} is not valid option of {}'.
+                                format(mode, supported_file_modes))
             return result
 
         try:
@@ -447,7 +462,8 @@ class ModuleHelper(object):
                 for line in content:
                     outfile.write(line)
 
-            self.logger.debug('Content successfully saved to {}'.format(file_path))
+            self.logger.debug('Content successfully saved to {}'.
+                              format(file_path))
             result = True
         except Exception as e:
             # use warning level instead of exception level to not raise error
