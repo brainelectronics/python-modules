@@ -7,9 +7,7 @@ Create JSON file with structure of child folders
 """
 
 import logging
-import json
 from pathlib import Path
-import os
 
 # custom imports
 from module_helper.module_helper import ModuleHelper

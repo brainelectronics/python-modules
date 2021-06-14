@@ -58,7 +58,7 @@ class GitWrapper(ModuleHelper):
             # use warning level instead of exception level to not raise error
             self.logger.warning('Failed due to OSError/IOError {}'.format(e))
             return False
-        except InvalidGitRepositoryError as e:  # by base.py @ _to_relative_path
+        except InvalidGitRepositoryError as e:  # by base.py@_to_relative_path
             # use warning level instead of exception level to not raise error
             self.logger.warning('Invalid git repository {}'.format(e))
             return False
@@ -104,14 +104,16 @@ class GitWrapper(ModuleHelper):
                 # try to find a repo at the given path
                 try:
                     repo_path = Path(repo)
-                    self.repo = Repo(str(repo_path), search_parent_directories=True)
+                    self.repo = Repo(str(repo_path),
+                                     search_parent_directories=True)
                     return self.repo
                 except Exception as e:
-                    # use warning instead of exception to not raise it automatically
+                    # use warning instead of exception to not raise it
                     self.logger.warning(e)
                     return None
             else:
-                self.logger.warning('Given parameter is not a Repo object or path to a repo')
+                self.logger.warning('''Given parameter is not a Repo object or
+                                    path to a repo''')
                 return None
 
     def get_repo_root(self, repo=None) -> str:
@@ -288,11 +290,12 @@ class GitWrapper(ModuleHelper):
                         self.logger.debug('Is already commit object')
                         commit_objs[idx] = ele
                 except BadObject as bad_object:
-                    # use warning instead of exception to not raise it automatically
+                    # use warning instead of exception to not raise it
                     self.logger.warning(bad_object)
                 except BadName as bad_name:
-                    # use warning instead of exception to not raise it automatically
-                    self.logger.warning('HEX SHA not found: {}'.format(bad_name))
+                    # use warning instead of exception to not raise it
+                    self.logger.warning('HEX SHA not found: {}'.
+                                        format(bad_name))
 
         return commit_objs
 
@@ -332,7 +335,8 @@ class GitWrapper(ModuleHelper):
                 # looks like a valid path
                 repo = self.get_valid_repo(repo=repo_path)
             else:
-                self.logger.error('Both string path and repo object are invalid')
+                self.logger.error('''Both string path and repo object are
+                                  invalid''')
                 return False
 
         # a given path is rated higher than a given object
@@ -369,7 +373,7 @@ class GitWrapper(ModuleHelper):
         try:
             reference = '{}'.format(repo.head.reference)
             # bugfix/some-branch-name
-        except TypeError as e:
+        except TypeError:
             self.logger.debug('HEAD is detached')
             reference = head_commit.hexsha
             # a0b7719a3c96001a83a5efefc9ed53dbda85fff6
@@ -385,7 +389,8 @@ class GitWrapper(ModuleHelper):
 
         # untracked_files_list = [file for file in repo.untracked_files]
         # [several, items]
-        # self.logger.debug('untracked_files_list: {}'.format(untracked_files_list))
+        # self.logger.debug('untracked_files_list: {}'.
+        #                   format(untracked_files_list))
 
         is_dirty = repo.is_dirty()
         # false
@@ -414,10 +419,17 @@ class GitWrapper(ModuleHelper):
         # logger.debug('Sorted tags: {}'.format(tags))
 
         # sorted tags with date and time
-        # [(datetime.datetime(2020, 11, 22, 13, 7, 39, tzinfo=<git.objects.util.tzoffset object at 0x1106db850>), '2.0.0'),
-        # (datetime.datetime(2020, 10, 25, 16, 26, 53, tzinfo=<git.objects.util.tzoffset object at 0x1106db9d0>)]
-        # sorted_tags = sorted([(tag.commit.committed_datetime, str(tag)) for tag in repo.tags], reverse=True)
-        sorted_date_tags = sorted([(tag.commit.committed_datetime, str(tag)) for tag in repo.tags], reverse=True)
+        # [(datetime.datetime(2020, 11, 22, 13, 7, 39,
+        #                     tzinfo=git.objects.util.tzoffset object at),
+        #  '2.0.0'),
+        # (datetime.datetime(2020, 10, 25, 16, 26, 53,
+        #                    tzinfo=git.objects.util.tzoffset object at)]
+        # sorted_tags = sorted([(tag.commit.committed_datetime, str(tag))
+        #                       for tag in repo.tags],
+        #                      reverse=True)
+        sorted_date_tags = sorted([(tag.commit.committed_datetime, str(tag))
+                                   for tag in repo.tags],
+                                  reverse=True)
         self.logger.debug('tags with date info: {}'.format(sorted_date_tags))
         # [(datetime.datetime(2021, 1, 7, 18, 45, 21,
         #   tzinfo=<git.objects.util.tzoffset object at 0x109963730>),
@@ -460,7 +472,7 @@ class GitWrapper(ModuleHelper):
         """
         Get the git dictionary.
 
-        Dictionary contains informations parsed by :py:func:`parse_git_informations`
+        Dictionary contains informations parsed by parse_git_informations
 
         :returns:   The latest git dictionary.
         :rtype:     dictionary

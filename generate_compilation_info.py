@@ -2,7 +2,7 @@
 # -*- coding: UTF-8 -*-
 """Generate information data JSON file"""
 #
-#  @author       Jonas Scharpf (jonas.scharpf@hilti.com) SCHAJONAS
+#  @author       Jonas Scharpf (info@brainelectronics.de) brainelectronics
 #  @file         generate_info.py
 #  @date         June, 2021
 #  @version      0.1.1
@@ -47,7 +47,6 @@ __status__ = "Beta"
 import argparse
 import json
 import logging
-import os
 from pathlib import Path
 import sys
 

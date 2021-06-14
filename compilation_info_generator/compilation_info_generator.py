@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
+
 """
 Compilation info generator.
 
@@ -9,7 +10,6 @@ Save JSON file with environment, git and file info related data
 import logging
 import os
 from pathlib import Path
-from typing import List, Dict
 
 # custom imports
 from module_helper.module_helper import ModuleHelper
@@ -78,11 +78,11 @@ class CompilationInfoGenerator(GitWrapper, ModuleHelper):
 
         # collect git informations
         self._process_git_info(path=git_path,
-                              info_dict=info_dict)
+                               info_dict=info_dict)
 
         # collect binary informations
         self._process_binary_info(path=file_path,
-                                 info_dict=info_dict)
+                                  info_dict=info_dict)
 
         self.logger.debug('Created info_dict: {}'.format(info_dict))
 
@@ -104,7 +104,8 @@ class CompilationInfoGenerator(GitWrapper, ModuleHelper):
         info_dict['ci']['job_name'] = env_dict['job_name']
         info_dict['ci']['build_id'] = env_dict['build_id']
 
-        self.logger.debug('Updated info_dict ci section: {}'.format(info_dict['ci']))
+        self.logger.debug('Updated info_dict ci section: {}'.
+                          format(info_dict['ci']))
 
     def _process_git_info(self, path: str, info_dict: dict) -> None:
         """
@@ -123,7 +124,8 @@ class CompilationInfoGenerator(GitWrapper, ModuleHelper):
         info_dict['vcs']['commit'] = vcs_dict['sha_short']
         info_dict['vcs']['date'] = vcs_dict['committed_date']
 
-        self.logger.debug('Updated info_dict vcs section: {}'.format(info_dict['vcs']))
+        self.logger.debug('Updated info_dict vcs section: {}'.
+                          format(info_dict['vcs']))
 
     def _process_binary_info(self, path: str, info_dict: dict) -> None:
         """
@@ -148,7 +150,8 @@ class CompilationInfoGenerator(GitWrapper, ModuleHelper):
             info_dict['binary']['size'] = stats.st_size
             info_dict['binary']['timestamp'] = int(stats.st_ctime)
 
-        self.logger.debug('Updated info_dict binary section: {}'.format(info_dict['binary']))
+        self.logger.debug('Updated info_dict binary section: {}'.
+                          format(info_dict['binary']))
 
     def get_info_dict(self) -> dict:
         """
