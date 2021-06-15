@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
-# ----------------------------------------------------------------------------
+"""Read Modbus device register informations based on JSON registers file"""
 #
 #  @author       Jonas Scharpf (info@brainelectronics.de) brainelectronics
 #  @file         read_device_info_registers.py
 #  @date         June, 2021
-#  @version      0.1.0
+#  @version      0.2.0
 #  @brief        Read all registers via RTU modbus or external IP
 #
 #  @required     pymodbus 2.3.0 or higher
@@ -16,15 +16,22 @@
 #   --connection=rtu \
 #   --address=/dev/tty.wchusbserial1420 \
 #   --unit=10 \
-#   -d -v4
+#   --print \
+#   --pretty \
+#   --save \
+#   --output info.json \
+#   -v4 -d
 #
 #  python3 read_device_info_registers.py \
 #   --file=../application/config/modbusRegisters.json \
 #   --connection=tcp \
 #   --address=192.168.4.1 \
 #   --unit=255 \
-#   -d -v4
-#
+#   --print \
+#   --pretty \
+#   --save \
+#   --output info.json \
+#   -v4 -d
 #
 #  optional arguments:
 #   -h, --help
@@ -32,7 +39,11 @@
 #   -a, --address   Address to connect, 192.168.0.8 or /dev/tty.SLAB_USBtoUART
 #   -c, --connection    Type of Modbus connection, ['tcp', 'rtu']
 #   -f, --file      Path to Modbus registers file
+#   -o, --output    Path to output file containing info
 #   -p, --port      Port of connection, not required for RTU Serial
+#   --pretty        Print collected info to stdout in human readable format
+#   --print         Print JSON to stdout
+#   -s, --save      Save collected informations to file
 #   -u, --unit      Unit of connection
 #                   Tobi Test 1, Serial 10, Phoenix 180, ESP 255
 #   --validate      Validate received data with expected data
@@ -51,19 +62,12 @@ __maintainer__ = "Jonas Scharpf"
 __email__ = "info@brainelectronics.de"
 __status__ = "Development"
 
-# from pymodbus.compat import iteritems
-# from pymodbus.constants import Endian
-# from pymodbus.payload import BinaryPayloadDecoder
-from pymodbus.client.sync import ModbusTcpClient        # as ModbusClient
-# from pymodbus.client.sync import ModbusUdpClient      # as ModbusClient
-from pymodbus.client.sync import ModbusSerialClient     # as ModbusClient
-
 import argparse
 import json
-import logging
-# import os
-import sys
-# import time
+
+# custom imports
+from modbus_wrapper.modbus_wrapper import ModbusWrapper
+from module_helper.module_helper import ModuleHelper
 
 
 class VAction(argparse.Action):
@@ -87,315 +91,32 @@ class VAction(argparse.Action):
         setattr(args, self.dest, self.values)
 
 
-def create_logger(logger_name: str = None) -> logging:
-    """
-    Create a logger.
-
-    :param      logger_name:  The logger name
-    :type       logger_name:  str, optional
-
-    :returns:   Configured logger
-    :rtype:     logging.Logger
-    """
-    custom_format = '[%(asctime)s] [%(levelname)-8s] [%(filename)-15s @'\
-                    ' %(funcName)-15s:%(lineno)4s] %(message)s'
-
-    # configure logging
-    logging.basicConfig(level=logging.INFO,
-                        format=custom_format,
-                        stream=sys.stdout)
-
-    if logger_name and (isinstance(logger_name, str)):
-        logger = logging.getLogger(logger_name)
-    else:
-        logger = logging.getLogger(__name__)
-
-    # set the logger level to DEBUG if specified differently
-    logger.setLevel(logging.DEBUG)
-
-    return logger
-
-
-def get_modbus_registers(file_path: str) -> dict:
-    """
-    Get the modbus registers for json file.
-
-    :param      file_path:  The file path
-    :type       file_path:  str
-
-    :returns:   The modbus registers.
-    :rtype:     dict
-    """
-    data = dict()
-
-    with open(file_path) as json_file:
-        data = json.load(json_file)
-
-    return data
-
-
-def read_all_registers(device_type: str = "tcp",
-                       address: str = "",
-                       port: int = 502,
-                       unit: int = 180,
-                       check_expectation: bool = False,
-                       file: str = 'modbusRegisters.json',
-                       logger: logging = None):
-    """
-    Read all registers.
-
-    :param      device_type:        The device type, "tcp" or "rtu"
-    :type       device_type:        str
-    :param      address:            The address
-    :type       address:            str
-    :param      port:               The port
-    :type       port:               int
-    :param      unit:               The unit
-    :type       unit:               int
-    :param      check_expectation:  Flag to check expectation
-    :type       check_expectation:  bool
-    :param      file:               The file
-    :type       file:               str
-    :param      logger:             The logger
-    :type       logger:             logging
-    """
-    if logger is None:
-        logger = create_logger()
-        logger.setLevel(logging.INFO)
-
-    available_modbus_registers = get_modbus_registers(file)
-
-    invalid_reg_content = 0
-    connection = False
-
-    if device_type == "tcp":
-        # TCP/IP Client
-        # default value in src/ModbusSettings.h or src/ModbusIP_ESP8266.h
-        client = ModbusTcpClient(host=address,
-                                 retries=3,
-                                 # retry_on_empty=True,
-                                 timeout=10,
-                                 port=port)
-    elif device_type == "rtu":
-        # Serial RTU Client
-        client = ModbusSerialClient(method="rtu",
-                                    port=address,
-                                    stopbits=1,
-                                    bytesize=8,
-                                    parity="N",
-                                    baudrate=9600,
-                                    timeout=10,
-                                    retries=3)
-
-    connection = client.connect()
-    logger.info('Connection result: {}'.format(connection))
-
-    # exit if no connection is established
-    if connection is False:
-        logger.error('Connection failed')
-        exit(-1)
-
-    # Coils (only getter) [0, 1]
-    logger.info('Coils coil:')
-    # function 01 - read single register
-    # address=0, count=4, unit=12
-    for key, val in available_modbus_registers['COILS'].items():
-        logger.debug('\tkey: {}'.format(key))
-        logger.debug('\t\tval: {}'.format(val))
-
-        register_address = val['register']
-        count = val['len']
-        register_description = val['description']
-        expected_val = 0
-        if 'test' in val:
-            expected_val = val['test']
-
-        bits = client.read_coils(address=register_address,
-                                 count=count,
-                                 unit=unit)
-
-        logger.debug('\t\tbits: {}'.format(bits))
-        bits = bits.bits
-        logger.debug('\t\tbits: {}'.format(bits))
-
-        if count == 1:
-            bit_val = bits[0]
-        else:
-            bit_val = bits[0:count]
-
-        logger.info('\t{:<5}\t{}'.format(bit_val, register_description))
-
-        if (check_expectation and
-            (expected_val != bit_val) and
-            (expected_val != -1)):
-            logger.error('\tValue {} not matching expectation {}'.
-                         format(bit_val, expected_val))
-            invalid_reg_content += 1
-
-    # Hregs (setter+getter) [0, 65535]
-    logger.info('Holding Hregs:')
-    # function 03 - read holding register
-    # address=0, count=1, unit=12
-    for key, val in available_modbus_registers['HREGS'].items():
-        logger.debug('\t\tkey: {}'.format(key))
-        logger.debug('\t\tval: {}'.format(val))
-
-        register_address = val['register']
-        count = val['len']
-        register_description = val['description']
-        expected_val = 0
-        if 'test' in val:
-            expected_val = val['test']
-
-        registers = client.read_holding_registers(address=register_address,
-                                                  count=count,
-                                                  unit=unit)
-
-        logger.debug('\t\tregisters: {}'.format(registers))
-        registers = registers.registers
-        logger.debug('\t\tregisters: {}'.format(registers))
-
-        # decoder = BinaryPayloadDecoder.fromRegisters(registers)
-        # decoded = []
-
-        if count == 1:
-            register_val = registers[0]
-        else:
-            register_val = registers[0:count]
-
-        logger.info('\t{:<5}\t{}'.format(register_val, register_description))
-
-        if (check_expectation and
-            (expected_val != register_val) and
-            (expected_val != -1)):
-            logger.error('\tValue {} does not match expectation {}'.
-                         format(register_val, expected_val))
-            invalid_reg_content += 1
-
-    # Ists (only getter) [0, 1]
-    logger.info('Discrete Ists:')
-    # function 02 - read input status (discrete inputs/digital input)
-    # address=0, count=1, unit=12
-    for key, val in available_modbus_registers['ISTS'].items():
-        logger.debug('\t\tkey: {}'.format(key))
-        logger.debug('\t\tval: {}'.format(val))
-
-        register_address = val['register']
-        count = val['len']
-        register_description = val['description']
-        expected_val = 0
-        if 'test' in val:
-            expected_val = val['test']
-
-        bits = client.read_discrete_inputs(address=register_address,
-                                           count=count,
-                                           unit=unit)
-
-        logger.debug('\t\tbits: {}'.format(bits))
-        bits = bits.bits
-        logger.debug('\t\tbits: {}'.format(bits))
-
-        if count == 1:
-            bit_val = bits[0]
-        else:
-            bit_val = bits[0:count]
-
-        logger.info('\t{:<5}\t{}'.format(bit_val, register_description))
-
-        if (check_expectation and
-            (expected_val != bit_val) and
-            (expected_val != -1)):
-            logger.error('\tValue {} does not match expectation {}'.
-                         format(bit_val, expected_val))
-            invalid_reg_content += 1
-
-    # Iregs (only getter) [0, 65535]
-    logger.info('Input Iregs:')
-    # function 04 - read input registers
-    # address=0, count=1, unit=12
-    for key, val in available_modbus_registers['IREGS'].items():
-        logger.debug('\t\tkey: {}'.format(key))
-        logger.debug('\t\tval: {}'.format(val))
-
-        register_address = val['register']
-        count = val['len']
-        register_description = val['description']
-        expected_val = 0
-        if 'test' in val:
-            expected_val = val['test']
-
-        registers = client.read_input_registers(address=register_address,
-                                                count=count,
-                                                unit=unit)
-
-        logger.debug('\t\tregisters: {}'.format(registers))
-        registers = registers.registers
-        logger.debug('\t\tregisters: {}'.format(registers))
-
-        if count == 1:
-            register_val = registers[0]
-        elif count == 2:
-            # actual a uint32_t value, reconstruct it
-            register_val = registers[0] << 16 | registers[1]
-        else:
-            register_val = registers[0:count]
-
-        if key == 'DEVICE_UUID_IREG':
-            it = iter(register_val)
-            tupleList = zip(it, it)
-            device_uuid_list = list()
-            for ele in tupleList:
-                device_uuid_list.append(ele[0] << 16 | ele[1])
-            device_uuid_str = ', '.join(hex(x) for x in device_uuid_list)
-            logger.info('\t[{:<5}]\t{}'.
-                        format(device_uuid_str, register_description))
-            logger.debug('\t{}\t{}'.format(register_val, register_description))
-        elif key == 'DEVICE_MAC_IREG':
-            device_mac_str = ':'.join(format(x, 'x') for x in register_val)
-            logger.info('\t{:<5}\t{}'.
-                        format(device_mac_str, register_description))
-            logger.info('\t{}\t{}'.format(register_val, register_description))
-        elif key == 'COMMIT_SHA_IREG':
-            unicode_chars_list = list()
-            for ele in register_val:
-                unicode_chars_list.append((ele >> 8) & 0xFF)
-                unicode_chars_list.append(ele & 0xFF)
-            commit_sha_str = ''.join(chr(x) for x in unicode_chars_list)
-            logger.debug('\t{}\t{}'.format(register_val, register_description))
-            logger.debug('\t{}\t{}'.
-                         format(unicode_chars_list, register_description))
-            logger.info('\t{}\t{}'.
-                        format(commit_sha_str, register_description))
-        else:
-            logger.info('\t{}\t{}'.format(register_val, register_description))
-
-            if (check_expectation and
-                (expected_val != register_val) and
-                (expected_val != -1)):
-                logger.error('\tValue {} does not match expectation {}'.
-                             format(register_val, expected_val))
-                invalid_reg_content += 1
-
-    client.close()
-    logger.debug('Connection closed')
-
-    if check_expectation and invalid_reg_content:
-        logger.warning('Mismatch of expected register values: {}'.
-                       format(invalid_reg_content))
-
-
 if __name__ == "__main__":
-    logger = create_logger(__name__)
-    register_logger = create_logger("Register Logger")
+    helper = ModuleHelper()
+
+    logger = helper.create_logger(__name__)
+    register_logger = helper.create_logger("Register Logger")
 
     parser = argparse.ArgumentParser()
 
+    # default arguments
+    parser.add_argument('-d', '--debug',
+                        action='store_true',
+                        help='Output logger messages to stderr')
+    parser.add_argument('-v', '--verbose',
+                        nargs='?',
+                        action=VAction,
+                        dest='verbose',
+                        help='Set level of verbosity')
+
+    # specific arguments
     parser.add_argument('-a',
                         '--address',
                         help=('Address of connection, like 192.168.0.8 or '
                               '/dev/tty.SLAB_USBtoUART'),
                         nargs='?',
                         required=True)
+
     parser.add_argument('-c',
                         '--connection',
                         help='Type of Modbus connection',
@@ -403,69 +124,115 @@ if __name__ == "__main__":
                         default="tcp",
                         choices=['tcp', 'rtu'],
                         required=False)
+
     parser.add_argument('-f',
                         '--file',
                         help='Path to Modbus registers file',
                         nargs='?',
                         default="modbusRegisters.json",
                         required=False)
+
+    parser.add_argument('-o', '--output',
+                        dest='output_file',
+                        required=False,
+                        help='Path to output file containing info')
+
+    parser.add_argument('--pretty',
+                        dest='print_pretty',
+                        action='store_true',
+                        help='Print collected info to stdout human readable')
+
+    parser.add_argument('--print',
+                        dest='print_result',
+                        action='store_true',
+                        help='Print collected info to stdout')
+
     parser.add_argument('-p',
                         '--port',
                         help='Port of connection, not required for RTU Serial',
                         default=502,
                         required=False)
+
+    parser.add_argument('-s', '--save',
+                        dest='save_info',
+                        action='store_true',
+                        help='Save collected informations to file specified'
+                        'Specified with --output or -o')
+
     parser.add_argument('-u',
                         '--unit',
                         help=('Unit of connection, '
                               'Phoenix 180, Tobi Test 1, ESP 255, Serial 10'),
                         default=180,
                         required=False)
+
     parser.add_argument('--validate',
                         help='Validate received data with expected data',
                         required=False,
                         action='store_true')
 
-    parser.add_argument('-d',
-                        '--debug',
-                        help='Output logger messages to stderr',
-                        action='store_true')
-    parser.add_argument('-v',
-                        '--verbosity',
-                        help='Set level of verbosity',
-                        nargs='?',
-                        default=1,
-                        required=False)
-
     # parse the args
     args = parser.parse_args()
 
-    # listing the levels in ascending order is easier
-    verbosity = int(args.verbosity)
-    log_levels_list = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
-    log_levels_list = log_levels_list[::-1]
-    log_level = min(len(log_levels_list) - 1, verbosity)
-    log_level_name = log_levels_list[log_level]
+    # set verbose level based on user setting
+    verbose_level = args.verbose
+    LOG_LEVELS = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
+    LOG_LEVELS = LOG_LEVELS[::-1]
 
-    logger.setLevel(log_level_name)
-    register_logger.setLevel(log_level_name)
+    if verbose_level is None:
+        if not args.debug:
+            # disable the logger of this file and the ReleaseInfoGenerator
+            logger.disabled = True
+            register_logger.disabled = True
+    else:
+        log_level = min(len(LOG_LEVELS) - 1, max(verbose_level, 0))
+        log_level_name = LOG_LEVELS[log_level]
 
-    if not args.debug:
-        print("Disabled loggers")
-        logger.disabled = True
-        register_logger.disabled = True
+        # set the level of the logger of this file and the ReleaseInfoGenerator
+        logger.setLevel(log_level_name)
+        register_logger.setLevel(log_level_name)
 
     logger.debug(args)
 
+    # take CLI parameters
     try:
         port = int(args.port)
         unit = int(args.unit)
     except Exception as e:
         raise e
+    output_file = args.output_file
+    save_info = args.save_info
+    print_result = args.print_result
+    print_pretty = args.print_pretty
 
-    read_all_registers(device_type=args.connection,
-                       address=args.address,
-                       port=port,
-                       unit=unit,
-                       check_expectation=args.validate,
-                       file=args.file,
-                       logger=register_logger)
+    # create objects
+    mb = ModbusWrapper(logger=register_logger, quiet=not args.debug)
+
+    # create and get the info dict
+    read_content = mb.read_all_registers(device_type=args.connection,
+                                         address=args.address,
+                                         port=port,
+                                         unit=unit,
+                                         check_expectation=args.validate,
+                                         file=args.file)
+
+    logger.debug('Register content: {}'.format(read_content))
+
+    if save_info:
+        if output_file is not None:
+            # do not sort keys to get JSON file in same order as input file
+            result = mb.save_json_file(path=output_file,
+                                       content=read_content,
+                                       pretty=print_pretty,
+                                       sort_keys=False)
+            logger.debug('Result of saving info as JSON: {}'.format(result))
+        else:
+            logger.warning('Can not save to not specified file')
+
+    # do print as last step
+    if print_result:
+        # do not sort keys to get JSON file in same order as input file
+        if print_pretty:
+            print(json.dumps(read_content, indent=4))
+        else:
+            print(json.dumps(read_content))
