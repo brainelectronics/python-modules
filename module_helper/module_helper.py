@@ -130,6 +130,15 @@ class ModuleHelper(object):
         return (int(time.time()))
 
     def get_random_string(self, length: int) -> str:
+        """
+        Get a random string with characters and numbers.
+
+        :param      length:  The length of the string to generate
+        :type       length:  int
+
+        :returns:   The random string.
+        :rtype:     str
+        """
         return ''.join(random.choices(string.ascii_uppercase + string.digits,
                                       k=length))
 
@@ -254,16 +263,19 @@ class ModuleHelper(object):
     def save_json_file(self,
                        path: str,
                        content: dict,
-                       pretty: bool = True) -> bool:
+                       pretty: bool = True,
+                       sort_keys: bool = True) -> bool:
         """
         Save content as a JSON file.
 
-        :param      path:     The path to save the file to
-        :type       path:     str
-        :param      content:  The content to save
-        :type       content:  dict
-        :param      pretty:   Save content human readable with indentations
-        :type       pretty:   bool
+        :param      path:       The path to save the file to
+        :type       path:       str
+        :param      content:    The content to save
+        :type       content:    dict
+        :param      pretty:     Save content human readable with indentations
+        :type       pretty:     bool
+        :param      sort_keys:  Sort content alphabetically
+        :type       sort_keys:  bool
 
         :returns:   True if the content has been saved, False otherwise.
         :rtype:     bool
@@ -273,9 +285,9 @@ class ModuleHelper(object):
         try:
             with open(str(path), 'w') as outfile:
                 if pretty:
-                    json.dump(content, outfile, indent=4, sort_keys=True)
+                    json.dump(content, outfile, indent=4, sort_keys=sort_keys)
                 else:
-                    json.dump(content, outfile, sort_keys=True)
+                    json.dump(content, outfile, sort_keys=sort_keys)
 
             self.logger.debug('File {} saved successfully'.format(path))
             result = True
