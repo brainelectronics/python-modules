@@ -46,6 +46,36 @@ class ModbusWrapper(ModuleHelper):
         """
         return self.load_json_file(path=file_path)
 
+    def restore_human_readable_content(self, key: str, value: list) -> str:
+        """
+        Restore received response to human readable content
+
+        :param      key:    The key
+        :type       key:    str
+        :param      value:  The value
+        :type       value:  list
+
+        :returns:   Human readable content
+        :rtype:     str
+        """
+        if key == 'DEVICE_UUID_IREG':
+            it = iter(value)
+            tupleList = zip(it, it)
+            device_uuid_list = list()
+            for ele in tupleList:
+                device_uuid_list.append(ele[0] << 16 | ele[1])
+            return ', '.join(hex(x) for x in device_uuid_list)
+        elif key == 'DEVICE_MAC_IREG':
+            return ':'.join(format(x, 'x') for x in value)
+        elif key == 'COMMIT_SHA_IREG':
+            unicode_chars_list = list()
+            for ele in value:
+                unicode_chars_list.append((ele >> 8) & 0xFF)
+                unicode_chars_list.append(ele & 0xFF)
+            return ''.join(chr(x) for x in unicode_chars_list)
+        else:
+            return ''
+
     def read_all_registers(self,
                            device_type: str = "tcp",
                            address: str = "",
@@ -106,55 +136,67 @@ class ModbusWrapper(ModuleHelper):
 
         # Coils (only getter) [0, 1]
         self.logger.info('Coils:')
-        invalid_coil_count, coil_register_content = self.read_coil_registers(
-            client=client,
-            unit=unit,
-            modbus_registers=modbus_registers['COILS'],
-            check_expectation=check_expectation)
-        self.logger.debug('coil_register_content: {}'.
-                          format(coil_register_content))
+        if 'COILS' in modbus_registers:
+            invalid_counter, coil_register_content = self.read_coil_registers(
+                client=client,
+                unit=unit,
+                modbus_registers=modbus_registers['COILS'],
+                check_expectation=check_expectation)
+            self.logger.debug('coil_register_content: {}'.
+                              format(coil_register_content))
 
-        invalid_reg_content += invalid_coil_count
-        read_content.update(coil_register_content)
+            invalid_reg_content += invalid_counter
+            read_content.update(coil_register_content)
+        else:
+            self.logger.info('No COILS defined, skipping')
 
         # Hregs (setter+getter) [0, 65535]
         self.logger.info('Hregs:')
-        invalid_hreg_count, hreg_register_content = self.read_hregs_registers(
-            client=client,
-            unit=unit,
-            modbus_registers=modbus_registers['HREGS'],
-            check_expectation=check_expectation)
-        self.logger.debug('hreg_register_content: {}'.
-                          format(hreg_register_content))
+        if 'HREGS' in modbus_registers:
+            invalid_counter, hreg_register_content = self.read_hregs_registers(
+                client=client,
+                unit=unit,
+                modbus_registers=modbus_registers['HREGS'],
+                check_expectation=check_expectation)
+            self.logger.debug('hreg_register_content: {}'.
+                              format(hreg_register_content))
 
-        invalid_reg_content += invalid_hreg_count
-        read_content.update(hreg_register_content)
+            invalid_reg_content += invalid_counter
+            read_content.update(hreg_register_content)
+        else:
+            self.logger.info('No HREGS defined, skipping')
 
         # Ists (only getter) [0, 1]
         self.logger.info('Ists:')
-        invalid_ists_counter, ists_register_content = self.read_ists_registers(
-            client=client,
-            unit=unit,
-            modbus_registers=modbus_registers['ISTS'],
-            check_expectation=check_expectation)
-        self.logger.debug('ists_register_content: {}'.
-                          format(ists_register_content))
+        if 'ISTS' in modbus_registers:
+            invalid_counter, ists_register_content = self.read_ists_registers(
+                client=client,
+                unit=unit,
+                modbus_registers=modbus_registers['ISTS'],
+                check_expectation=check_expectation)
+            self.logger.debug('ists_register_content: {}'.
+                              format(ists_register_content))
 
-        invalid_reg_content += invalid_ists_counter
-        read_content.update(ists_register_content)
+            invalid_reg_content += invalid_counter
+            read_content.update(ists_register_content)
+        else:
+            self.logger.info('No ISTS defined, skipping')
 
         # Iregs (only getter) [0, 65535]
         self.logger.info('Iregs:')
-        invalid_ireg_count, ireg_register_content = self.read_iregs_registers(
-            client=client,
-            unit=unit,
-            modbus_registers=modbus_registers['IREGS'],
-            check_expectation=check_expectation)
-        self.logger.debug('ireg_register_content: {}'.
-                          format(ireg_register_content))
+        if 'IREGS' in modbus_registers:
+            invalid_counter, ireg_register_content = self.read_iregs_registers(
+                client=client,
+                unit=unit,
+                modbus_registers=modbus_registers['IREGS'],
+                check_expectation=check_expectation)
+            self.logger.debug('ireg_register_content: {}'.
+                              format(ireg_register_content))
 
-        invalid_reg_content += invalid_ireg_count
-        read_content.update(ireg_register_content)
+            invalid_reg_content += invalid_counter
+            read_content.update(ireg_register_content)
+        else:
+            self.logger.info('No IREGS defined, skipping')
 
         client.close()
         self.logger.debug('Connection closed')
@@ -204,30 +246,33 @@ class ModbusWrapper(ModuleHelper):
             if 'test' in val:
                 expected_val = val['test']
 
-            bits = client.read_coils(address=register_address,
-                                     count=count,
-                                     unit=unit)
-
-            self.logger.debug('\t\tbits: {}'.format(bits))
-            bits = bits.bits
-            self.logger.debug('\t\tbits: {}'.format(bits))
-
-            if count == 1:
-                bit_val = bits[0]
-            else:
-                bit_val = bits[0:count]
-
-            self.logger.info('\t{:<5}\t{}'.format(bit_val,
-                                                  register_description))
-
-            register_content[key] = bit_val
-
-            if (check_expectation and
-                (expected_val != bit_val) and
-                    (expected_val != -1)):
-                self.logger.error('\tValue {} not matching expectation {}'.
-                                  format(bit_val, expected_val))
+            response = client.read_coils(address=register_address,
+                                         count=count,
+                                         unit=unit)
+            if response.isError():
+                register_content[key] = False
                 invalid_reg_counter += 1
+            else:
+                self.logger.debug('\t\tbits: {}'.format(response))
+                bits = response.bits
+                self.logger.debug('\t\tbits: {}'.format(bits))
+
+                if count == 1:
+                    bit_val = bits[0]
+                else:
+                    bit_val = bits[0:count]
+
+                self.logger.info('\t{:<5}\t{}'.format(bit_val,
+                                                      register_description))
+
+                register_content[key] = bit_val
+
+                if (check_expectation and
+                    (expected_val != bit_val) and
+                        (expected_val != -1)):
+                    self.logger.error('\tValue {} not matching expectation {}'.
+                                      format(bit_val, expected_val))
+                    invalid_reg_counter += 1
 
         return invalid_reg_counter, register_content
 
@@ -268,33 +313,37 @@ class ModbusWrapper(ModuleHelper):
             if 'test' in val:
                 expected_val = val['test']
 
-            registers = client.read_holding_registers(address=register_address,
-                                                      count=count,
-                                                      unit=unit)
+            response = client.read_holding_registers(address=register_address,
+                                                     count=count,
+                                                     unit=unit)
 
-            self.logger.debug('\t\tregisters: {}'.format(registers))
-            registers = registers.registers
-            self.logger.debug('\t\tregisters: {}'.format(registers))
-
-            # decoder = BinaryPayloadDecoder.fromRegisters(registers)
-            # decoded = []
-
-            if count == 1:
-                register_val = registers[0]
-            else:
-                register_val = registers[0:count]
-
-            self.logger.info('\t{:<5}\t{}'.format(register_val,
-                                                  register_description))
-
-            register_content[key] = register_val
-
-            if (check_expectation and
-                (expected_val != register_val) and
-                    (expected_val != -1)):
-                self.logger.error('\tValue {} does not match expectation {}'.
-                                  format(register_val, expected_val))
+            if response.isError():
+                register_content[key] = -1
                 invalid_reg_counter += 1
+            else:
+                self.logger.debug('\t\tregisters: {}'.format(response))
+                registers = response.registers
+                self.logger.debug('\t\tregisters: {}'.format(registers))
+
+                # decoder = BinaryPayloadDecoder.fromRegisters(registers)
+                # decoded = []
+
+                if count == 1:
+                    register_val = registers[0]
+                else:
+                    register_val = registers[0:count]
+
+                self.logger.info('\t{}\t{}'.format(register_val,
+                                                   register_description))
+
+                register_content[key] = register_val
+
+                if (check_expectation and
+                    (expected_val != register_val) and
+                        (expected_val != -1)):
+                    self.logger.error('\tValue {} not matching expectation {}'.
+                                      format(register_val, expected_val))
+                    invalid_reg_counter += 1
 
         return invalid_reg_counter, register_content
 
@@ -336,30 +385,33 @@ class ModbusWrapper(ModuleHelper):
             if 'test' in val:
                 expected_val = val['test']
 
-            bits = client.read_discrete_inputs(address=register_address,
-                                               count=count,
-                                               unit=unit)
-
-            self.logger.debug('\t\tbits: {}'.format(bits))
-            bits = bits.bits
-            self.logger.debug('\t\tbits: {}'.format(bits))
-
-            if count == 1:
-                bit_val = bits[0]
-            else:
-                bit_val = bits[0:count]
-
-            self.logger.info('\t{:<5}\t{}'.
-                             format(bit_val, register_description))
-
-            register_content[key] = bit_val
-
-            if (check_expectation and
-                (expected_val != bit_val) and
-                    (expected_val != -1)):
-                self.logger.error('\tValue {} does not match expectation {}'.
-                                  format(bit_val, expected_val))
+            response = client.read_discrete_inputs(address=register_address,
+                                                   count=count,
+                                                   unit=unit)
+            if response.isError():
+                register_content[key] = -1
                 invalid_reg_counter += 1
+            else:
+                self.logger.debug('\t\tbits: {}'.format(response))
+                bits = response.bits
+                self.logger.debug('\t\tbits: {}'.format(bits))
+
+                if count == 1:
+                    bit_val = bits[0]
+                else:
+                    bit_val = bits[0:count]
+
+                self.logger.info('\t{:<5}\t{}'.
+                                 format(bit_val, register_description))
+
+                register_content[key] = bit_val
+
+                if (check_expectation and
+                    (expected_val != bit_val) and
+                        (expected_val != -1)):
+                    self.logger.error('\tValue {} not matching expectation {}'.
+                                      format(bit_val, expected_val))
+                    invalid_reg_counter += 1
 
         return invalid_reg_counter, register_content
 
@@ -400,65 +452,46 @@ class ModbusWrapper(ModuleHelper):
             if 'test' in val:
                 expected_val = val['test']
 
-            registers = client.read_input_registers(address=register_address,
-                                                    count=count,
-                                                    unit=unit)
-
-            self.logger.debug('\t\tregisters: {}'.format(registers))
-            registers = registers.registers
-            self.logger.debug('\t\tregisters: {}'.format(registers))
-
-            if count == 1:
-                register_val = registers[0]
-            elif count == 2:
-                # actual a uint32_t value, reconstruct it
-                register_val = registers[0] << 16 | registers[1]
-            else:
-                register_val = registers[0:count]
-
-            if key == 'DEVICE_UUID_IREG':
-                it = iter(register_val)
-                tupleList = zip(it, it)
-                device_uuid_list = list()
-                for ele in tupleList:
-                    device_uuid_list.append(ele[0] << 16 | ele[1])
-                device_uuid_str = ', '.join(hex(x) for x in device_uuid_list)
-                self.logger.info('\t[{:<5}]\t{}'.format(device_uuid_str,
-                                                        register_description))
-                self.logger.debug('\t{}\t{}'.format(register_val,
-                                                    register_description))
-                register_content['HUMAN_'+key] = device_uuid_str
-            elif key == 'DEVICE_MAC_IREG':
-                device_mac_str = ':'.join(format(x, 'x') for x in register_val)
-                self.logger.info('\t{:<5}\t{}'.format(device_mac_str,
-                                                      register_description))
-                self.logger.info('\t{}\t{}'.format(register_val,
-                                                   register_description))
-                register_content['HUMAN_'+key] = device_mac_str
-            elif key == 'COMMIT_SHA_IREG':
-                unicode_chars_list = list()
-                for ele in register_val:
-                    unicode_chars_list.append((ele >> 8) & 0xFF)
-                    unicode_chars_list.append(ele & 0xFF)
-                commit_sha_str = ''.join(chr(x) for x in unicode_chars_list)
-                self.logger.debug('\t{}\t{}'.format(register_val,
-                                                    register_description))
-                self.logger.debug('\t{}\t{}'.format(unicode_chars_list,
-                                                    register_description))
-                self.logger.info('\t{}\t{}'.format(commit_sha_str,
-                                                   register_description))
-                register_content['HUMAN_'+key] = commit_sha_str
-            else:
-                self.logger.info('\t{}\t{}'.format(register_val,
-                                                   register_description))
-
-            register_content[key] = register_val
-
-            if (check_expectation and
-                (expected_val != register_val) and
-                    (expected_val != -1)):
-                self.logger.error('\tValue {} does not match expectation {}'.
-                                  format(register_val, expected_val))
+            response = client.read_input_registers(address=register_address,
+                                                   count=count,
+                                                   unit=unit)
+            if response.isError():
+                register_content[key] = False
                 invalid_reg_counter += 1
+            else:
+                self.logger.debug('\t\tregisters: {}'.format(response))
+                registers = response.registers
+                self.logger.debug('\t\tregisters: {}'.format(registers))
+
+                if count == 1:
+                    register_val = registers[0]
+                elif count == 2:
+                    # actual a uint32_t value, reconstruct it
+                    register_val = registers[0] << 16 | registers[1]
+                else:
+                    register_val = registers[0:count]
+
+                restored = self.restore_human_readable_content(
+                    key=key,
+                    value=register_val)
+
+                if restored != '':
+                    self.logger.info('\t[{}]\t{}'.format(restored,
+                                                         register_description))
+                    self.logger.debug('\t{}\t{}'.format(register_val,
+                                                        register_description))
+                    register_content['HUMAN_'+key] = restored
+                else:
+                    self.logger.info('\t{}\t{}'.format(register_val,
+                                                       register_description))
+
+                register_content[key] = register_val
+
+                if (check_expectation and
+                    (expected_val != register_val) and
+                        (expected_val != -1)):
+                    self.logger.error('\tValue {} not matching expectation {}'.
+                                      format(register_val, expected_val))
+                    invalid_reg_counter += 1
 
         return invalid_reg_counter, register_content
