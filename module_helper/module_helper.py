@@ -7,6 +7,7 @@ Module helper
 Collection of helper functions used in other modules
 """
 
+import argparse
 from datetime import datetime
 import json
 import logging
@@ -55,6 +56,34 @@ class ModuleHelper(object):
         logger.setLevel(logging.DEBUG)
 
         return logger
+
+    def set_logger_verbose_level(self,
+                                 logger: logging.Logger,
+                                 verbose_level: int,
+                                 debug_output: bool):
+        """
+        Set the logger verbose level and debug output
+
+        :param      logger:         The logger to apply the settings to
+        :type       logger:         logging.Logger
+        :param      verbose_level:  The verbose level
+        :type       verbose_level:  int
+        :param      debug_output:   The debug mode
+        :type       debug_output:   bool
+        """
+        LOG_LEVELS = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
+        LOG_LEVELS = LOG_LEVELS[::-1]
+
+        if verbose_level is None:
+            if not debug_output:
+                # disable the logger
+                logger.disabled = True
+        else:
+            log_level = min(len(LOG_LEVELS) - 1, max(verbose_level, 0))
+            log_level_name = LOG_LEVELS[log_level]
+
+            # set the level of the logger
+            logger.setLevel(log_level_name)
 
     def get_option_values(self, options: List[dict], option: str) -> List[str]:
         """
@@ -142,6 +171,34 @@ class ModuleHelper(object):
         return ''.join(random.choices(string.ascii_uppercase + string.digits,
                                       k=length))
 
+    def convert_string_to_uint16t(self, content: str) -> list:
+        """
+        Convert string to list of uint16_t values
+
+        :param      content:  The string content to convert
+        :type       content:  str
+
+        :returns:   Unicode converted list of uint16_t numbers
+        :rtype:     list
+        """
+        # convert all characters to their unicode code, 'A' -> 65 ...
+        unicode_list = [ord(x) for x in content]
+        self.logger.debug('Content as unicode: {}'.format(unicode_list))
+
+        # iter the list and create tuples
+        # represented by 8 bit, two unicode chars can be represented by 16 bit
+        it = iter(unicode_list)
+        tuple_list = zip(it, it)
+
+        # create a 16 bit number of two unicode numbers
+        number_list = list()
+        for ele in tuple_list:
+            number_list.append((ele[0] << 8) | ele[1])
+
+        self.logger.debug('Content as numbers: {}'.format(number_list))
+
+        return number_list
+
     def sort_by_name(self, a_list: list, descending: bool = False) -> bool:
         """
         Sort list by name.
@@ -187,6 +244,88 @@ class ModuleHelper(object):
             return False
 
         return True
+
+    @classmethod
+    def parser_valid_file(cls,
+                          parser: argparse.ArgumentParser,
+                          arg: str) -> str:
+        """
+        Determine whether file exists.
+
+        :param      parser:                 The parser
+        :type       parser:                 parser object
+        :param      arg:                    The file to check
+        :type       arg:                    str
+        :raise      argparse.ArgumentError: Argument is not a file
+
+        :returns:   Input file path, parser error is thrown otherwise.
+        :rtype:     str
+        """
+        if not Path(arg).is_file():
+            parser.error("The file {} does not exist!".format(arg))
+        else:
+            return arg
+
+    @classmethod
+    def parser_valid_dir(cls,
+                         parser: argparse.ArgumentParser,
+                         arg: str) -> str:
+        """
+        Determine whether directory exists.
+
+        :param      parser:                 The parser
+        :type       parser:                 parser object
+        :param      arg:                    The directory to check
+        :type       arg:                    str
+        :raise      argparse.ArgumentError: Argument is not a directory
+
+        :returns:   Input directory path, parser error is thrown otherwise.
+        :rtype:     str
+        """
+        if not Path(arg).is_dir():
+            parser.error("The directory {} does not exist!".format(arg))
+        else:
+            return arg
+
+    @classmethod
+    def check_file(cls, file_path: str, suffix: str) -> bool:
+        """
+        Check existance and type of file
+
+        :param      file_path:  The path to file
+        :type       file_path:  string
+        :param      suffix:     Suffix of file
+        :type       suffix:     string
+
+        :returns:   Result of file check
+        :rtype:     boolean
+        """
+        result = False
+        file_path = Path(file_path)
+
+        if file_path.is_file():
+            if file_path.suffix == suffix:
+                result = True
+
+        return result
+
+    @classmethod
+    def check_folder(cls, folder_path: str) -> bool:
+        """
+        Check existance of folder
+
+        :param      folder_path:  The path to the folder
+        :type       folder_path:  string
+
+        :returns:   Result of folder check
+        :rtype:     boolean
+        """
+        result = False
+
+        if Path(folder_path).is_dir():
+            result = True
+
+        return result
 
     def save_yaml_file(self, path: str, content: dict) -> bool:
         """
@@ -442,16 +581,19 @@ class ModuleHelper(object):
     def save_list_to_file(self,
                           file_path: str,
                           content: list,
+                          with_new_line: bool = False,
                           mode: str = 'w') -> bool:
         """
         Save list of lines to a file.
 
-        :param      file_path:  The path to save the file to
-        :type       file_path:  str
-        :param      content:    The content to save
-        :type       content:    list
-        :param      mode:       Type of writing to the file
-        :type       mode:       str, optional
+        :param      file_path:      The path to save the file to
+        :type       file_path:      str
+        :param      content:        The content to save
+        :type       content:        list
+        :param      with_new_line:  Flag to save each line with a linebreak
+        :type       with_new_line:  bool, optional
+        :param      mode:           Type of writing to the file
+        :type       mode:           str, optional
 
         :returns:   True if the content has been saved, False otherwise.
         :rtype:     bool
@@ -473,6 +615,9 @@ class ModuleHelper(object):
             with open(str(file_path), mode) as outfile:
                 for line in content:
                     outfile.write(line)
+
+                    if with_new_line:
+                        outfile.write("\n")
 
             self.logger.debug('Content successfully saved to {}'.
                               format(file_path))
