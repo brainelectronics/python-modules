@@ -66,16 +66,13 @@ class VAction(argparse.Action):
 
     def __call__(self, parser, args, values, option_string=None):
         """Actual call or action to perform"""
-        # print('values: {v!r}'.format(v=values))
         if values is None:
             pass
             # do not increment here, so '-v' will use highest log level
-            # self.values += 1
         else:
             try:
                 self.values = int(values)
             except ValueError:
-                # self.values = values.count('v')+1
                 self.values = values.count('v')  # do not count the first '-v'
         setattr(args, self.dest, self.values)
 
@@ -91,6 +88,7 @@ def parse_arguments() -> argparse.Namespace:
     Generate JSON of modbus register header file
     """, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
+    # default arguments
     parser.add_argument('-d', '--debug',
                         action='store_true',
                         help='Output logger messages to stderr')
@@ -100,6 +98,7 @@ def parse_arguments() -> argparse.Namespace:
                         dest='verbose',
                         help='Set level of verbosity')
 
+    # specific arguments
     parser.add_argument('--input',
                         required=True,
                         type=lambda x: ModuleHelper.parser_valid_file(parser,
