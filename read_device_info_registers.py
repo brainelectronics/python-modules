@@ -4,15 +4,15 @@
 #
 #  @author       Jonas Scharpf (info@brainelectronics.de) brainelectronics
 #  @file         read_device_info_registers.py
-#  @date         June, 2021
-#  @version      0.2.0
+#  @date         July, 2021
+#  @version      0.3.0
 #  @brief        Read all registers via RTU modbus or external IP
 #
 #  @required     pymodbus 2.3.0 or higher
 #
 #  @usage
 #  python3 read_device_info_registers.py \
-#   --file=../application/config/modbusRegisters.json \
+#   --file=example/modbusRegisters.json \
 #   --connection=rtu \
 #   --address=/dev/tty.wchusbserial1420 \
 #   --unit=10 \
@@ -23,10 +23,10 @@
 #   -v4 -d
 #
 #  python3 read_device_info_registers.py \
-#   --file=../application/config/modbusRegisters.json \
+#   --file=example/modbusRegisters-phoenix.json \
 #   --connection=tcp \
-#   --address=192.168.4.1 \
-#   --unit=255 \
+#   --address=192.168.0.8 \
+#   --unit=180 \
 #   --print \
 #   --pretty \
 #   --save \
@@ -57,10 +57,10 @@
 __author__ = "Jonas Scharpf"
 __copyright__ = "Copyright by brainelectronics, ALL RIGHTS RESERVED"
 __credits__ = ["Jonas Scharpf"]
-__version__ = "0.1.0"
+__version__ = "0.3.0"
 __maintainer__ = "Jonas Scharpf"
 __email__ = "info@brainelectronics.de"
-__status__ = "Development"
+__status__ = "Beta"
 
 import argparse
 import json
@@ -91,13 +91,16 @@ class VAction(argparse.Action):
         setattr(args, self.dest, self.values)
 
 
-if __name__ == "__main__":
-    helper = ModuleHelper()
+def parse_arguments() -> argparse.Namespace:
+    """
+    Parse CLI arguments.
 
-    logger = helper.create_logger(__name__)
-    register_logger = helper.create_logger("Register Logger")
-
-    parser = argparse.ArgumentParser()
+    :raise  argparse.ArgumentError
+    :return: argparse object
+    """
+    parser = argparse.ArgumentParser(description="""
+    Read Modbus register
+    """, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     # default arguments
     parser.add_argument('-d', '--debug',
@@ -171,27 +174,29 @@ if __name__ == "__main__":
                         required=False,
                         action='store_true')
 
-    # parse the args
-    args = parser.parse_args()
+    parsed_args = parser.parse_args()
+
+    return parsed_args
+
+
+if __name__ == "__main__":
+    helper = ModuleHelper(quiet=True)
+
+    logger = helper.create_logger(__name__)
+    register_logger = helper.create_logger("Register Logger")
+
+    # parse CLI arguments
+    args = parse_arguments()
 
     # set verbose level based on user setting
-    verbose_level = args.verbose
-    LOG_LEVELS = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
-    LOG_LEVELS = LOG_LEVELS[::-1]
+    helper.set_logger_verbose_level(logger=logger,
+                                    verbose_level=args.verbose,
+                                    debug_output=args.debug)
+    helper.set_logger_verbose_level(logger=register_logger,
+                                    verbose_level=args.verbose,
+                                    debug_output=args.debug)
 
-    if verbose_level is None:
-        if not args.debug:
-            # disable the logger of this file and the ReleaseInfoGenerator
-            logger.disabled = True
-            register_logger.disabled = True
-    else:
-        log_level = min(len(LOG_LEVELS) - 1, max(verbose_level, 0))
-        log_level_name = LOG_LEVELS[log_level]
-
-        # set the level of the logger of this file and the ReleaseInfoGenerator
-        logger.setLevel(log_level_name)
-        register_logger.setLevel(log_level_name)
-
+    # log the provided arguments
     logger.debug(args)
 
     # take CLI parameters

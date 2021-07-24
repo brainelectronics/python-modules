@@ -4,19 +4,19 @@
 #
 #  @author       Jonas Scharpf (info@brainelectronics.de) brainelectronics
 #  @file         generate_modbus_json.py
-#  @date         June, 2021
-#  @version      0.2.0
+#  @date         July, 2021
+#  @version      0.3.0
 #  @brief        Generate a JSON file from a modbus register header file
 #
 #  @note         No numbers are allowed in the register name
 #
 #  @usage
 #  python3 generate_modbus_json.py \
-#   --input=modbusRegisters.h
+#   --input example/modbusRegisters.h \
 #   --print \
 #   --pretty \
 #   --save \
-#   --output=outputFolder \
+#   --output modbusRegisters.json \
 #   -v4 -d
 #
 #  optional arguments:
@@ -24,9 +24,9 @@
 #
 #   --input         Header file of modbus registers
 #   --output        Path to output folder or file for JSON file, default name
-#                   is set as 'registers.json' if path is provided
+#                   is set as 'registers.json' if path to folder is provided
 #   --pretty        Print collected info to stdout in human readable format
-#   -p, --print     Print JSON to stdout
+#   --print         Print JSON to stdout
 #   -s, --save      Save collected informations to file
 #
 #   -d, --debug     Flag, Output logger messages to stderr (default: False)
@@ -38,7 +38,7 @@
 __author__ = "Jonas Scharpf"
 __copyright__ = "Copyright by brainelectronics, ALL RIGHTS RESERVED"
 __credits__ = ["Jonas Scharpf"]
-__version__ = "0.2.0"
+__version__ = "0.3.0"
 __maintainer__ = "Jonas Scharpf"
 __email__ = "info@brainelectronics.de"
 __status__ = "Development"
@@ -50,8 +50,12 @@ from pathlib import Path
 import re
 import sys
 
+# custom imports
+from module_helper.module_helper import ModuleHelper
+
 
 class VAction(argparse.Action):
+    """docstring for VAction"""
     def __init__(self, option_strings, dest, nargs=None, const=None,
                  default=None, type=None, choices=None, required=False,
                  help=None, metavar=None):
@@ -61,6 +65,7 @@ class VAction(argparse.Action):
         self.values = 0
 
     def __call__(self, parser, args, values, option_string=None):
+        """Actual call or action to perform"""
         # print('values: {v!r}'.format(v=values))
         if values is None:
             pass
@@ -73,37 +78,6 @@ class VAction(argparse.Action):
                 # self.values = values.count('v')+1
                 self.values = values.count('v')  # do not count the first '-v'
         setattr(args, self.dest, self.values)
-
-
-def create_logger(logger_name: str = None) -> logging.Logger:
-    """
-    Creates a logger.
-
-    :param      logger_name:  The logger name
-    :type       logger_name:  str
-
-    :returns:   Logger
-    :rtype:     logging.Logger
-    """
-
-    # define a format
-    custom_format = '[%(asctime)s] [%(levelname)-8s] [%(filename)-15s @'\
-                    ' %(funcName)-15s:%(lineno)4s] %(message)s'
-
-    # configure logging
-    logging.basicConfig(level=logging.INFO,
-                        format=custom_format,
-                        stream=sys.stdout)
-
-    if logger_name and (isinstance(logger_name, str)):
-        logger = logging.getLogger(logger_name)
-    else:
-        logger = logging.getLogger(__name__)
-
-    # set the logger level to DEBUG if specified differently
-    logger.setLevel(logging.DEBUG)
-
-    return logger
 
 
 def parse_arguments() -> argparse.Namespace:
@@ -128,6 +102,8 @@ def parse_arguments() -> argparse.Namespace:
 
     parser.add_argument('--input',
                         required=True,
+                        type=lambda x: ModuleHelper.parser_valid_file(parser,
+                                                                      x),
                         help='Header file of modbus registers')
 
     parser.add_argument('--output',
@@ -142,7 +118,7 @@ def parse_arguments() -> argparse.Namespace:
                         help='Print collected info to stdout in human readable'
                         'format')
 
-    parser.add_argument('-p', '--print',
+    parser.add_argument('--print',
                         dest='print_result',
                         action='store_true',
                         help='Print collected info to stdout')
@@ -156,48 +132,6 @@ def parse_arguments() -> argparse.Namespace:
     parsed_args = parser.parse_args()
 
     return parsed_args
-
-
-def check_file(file_path: str, suffix: str) -> bool:
-    """
-    Check existance and type of file
-
-    :param      file_path:  The path to file
-    :type       file_path:  string
-    :param      suffix:     Suffix of file
-    :type       suffix:     string
-
-    :returns:   Result of file check
-    :rtype:     boolean
-    """
-    result = False
-    file_path = Path(file_path)
-
-    if file_path.is_file():
-        if file_path.suffix == suffix:
-            result = True
-
-    return result
-
-
-def check_folder(folder_path: str) -> bool:
-    """
-    Check existance of folder
-
-    :param      folder_path:  The path to the folder
-    :type       folder_path:  string
-
-    :returns:   Result of folder check
-    :rtype:     boolean
-    """
-    result = False
-
-    folder_path = Path(folder_path)
-
-    if Path(folder_path).is_dir():
-        result = True
-
-    return result
 
 
 def extract_defined_registers(file_path: str, logger: logging.Logger) -> dict:
@@ -305,113 +239,70 @@ def extract_defined_registers(file_path: str, logger: logging.Logger) -> dict:
     return registers_dict
 
 
-def save_json_file(file_path: str,
-                   registers_dict: dict,
-                   file_name: str,
-                   logger: logging.Logger) -> bool:
-    """
-    Save content of dictionary as JSON file to parent directory.
-
-    :param      file_path:       The file path
-    :type       file_path:       str
-    :param      registers_dict:  The registers dictionary
-    :type       registers_dict:  dict
-    :param      file_name:       Name of file
-    :type       file_name:       str, optional
-    :param      logger:          The logger
-    :type       logger:          logging.Logger
-
-    :returns:   Result of saving the file
-    :rtype:     bool
-    """
-    result = False
-    file_path = Path(file_path)
-    json_file_path = None
-    if not file_name:
-        file_name = 'registers.json'
-        logger.info('No file name given, using default: {}'.format(file_name))
-
-    if file_path.is_dir():
-        json_file_path = file_path / file_name
-    elif file_path.is_file():
-        if file_path.parent.is_dir():
-            json_file_path = file_path.with_suffix('.json')
-
-    if json_file_path:
-        logger.debug('JSON file path: {}'.format(json_file_path.resolve()))
-
-        with open(str(json_file_path), 'w') as file:
-            json.dump(registers_dict, file, indent=4)
-            result = True
-
-    return result
-
-
 if __name__ == '__main__':
-    logger = create_logger(__name__)
+    helper = ModuleHelper(quiet=True)
+
+    logger = helper.create_logger(__name__)
 
     # parse CLI arguments
     args = parse_arguments()
 
     # set verbose level based on user setting
-    verbose_level = args.verbose
-    LOG_LEVELS = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
-    LOG_LEVELS = LOG_LEVELS[::-1]
-
-    if verbose_level is None:
-        if not args.debug:
-            # disable the logger of this file and the ReleaseInfoGenerator
-            logger.disabled = True
-    else:
-        log_level = min(len(LOG_LEVELS) - 1, max(verbose_level, 0))
-        log_level_name = LOG_LEVELS[log_level]
-
-        # set the level of the logger of this file and the ReleaseInfoGenerator
-        logger.setLevel(log_level_name)
-
-    # take CLI parameters
-    file_path = Path(args.input)
-    output_arg = args.output
-    if output_arg:
-        if check_folder(output_arg) or check_file(output_arg, '.json'):
-            output_path = Path(output_arg)
-        else:
-            logger.warning('Can not save JSON to {}'.format(output_path))
-    else:
-        output_path = file_path
-
-    save_info = args.save_info
-    print_result = args.print_result
-    print_pretty = args.print_pretty
+    helper.set_logger_verbose_level(logger=logger,
+                                    verbose_level=args.verbose,
+                                    debug_output=args.debug)
 
     # log the provided arguments
     logger.debug(args)
 
-    logger.debug('Input file: {}'.format(file_path))
+    # take CLI parameters
+    input_file_path = Path(args.input)
+    output_arg = args.output
+    save_info = args.save_info
+    print_result = args.print_result
+    print_pretty = args.print_pretty
 
-    file_check_result = check_file(file_path, '.h')
+    # set fallback name of output file
+    file_name = 'registers.json'
+    output_path = None
+
+    file_check_result = ModuleHelper.check_file(input_file_path, '.h')
     logger.debug('Input file check result: {}'.format(file_check_result))
 
+    if output_arg:
+        if ModuleHelper.check_folder(output_arg):
+            output_path = Path(output_arg) / file_name
+        else:
+            if output_arg.endswith('.json'):
+                output_path = Path(output_arg)
+            else:
+                logger.warning('Unsupported file type, using default')
+                output_path = Path(output_arg).with_suffix('.json')
+
+    if output_path is None:
+        logger.info('No output specified, using same directory as input file')
+        output_path = input_file_path.parent / file_name
+
+    logger.debug('Save output to {}'.format(output_path))
     registers_dict = dict()
 
     if file_check_result:
-        registers_dict = extract_defined_registers(file_path=file_path,
+        registers_dict = extract_defined_registers(file_path=input_file_path,
                                                    logger=logger)
 
         if save_info:
-            file_name = None
-            if output_path.is_file():
-                file_name = output_path.name
+            # do not sort keys to get JSON file in same order as input file
+            result = helper.save_json_file(path=output_path,
+                                           content=registers_dict,
+                                           pretty=print_pretty,
+                                           sort_keys=False)
 
-            result = save_json_file(file_path=output_path,
-                                    registers_dict=registers_dict,
-                                    file_name=file_name,
-                                    logger=logger)
             logger.debug('Result of saving info as JSON: {}'.format(result))
 
         # do print as last step
         if print_result:
+            # do not sort keys to get JSON file in same order as input file
             if print_pretty:
-                print(json.dumps(registers_dict, indent=4, sort_keys=True))
+                print(json.dumps(registers_dict, indent=4))
             else:
-                print(json.dumps(registers_dict, sort_keys=True))
+                print(json.dumps(registers_dict))

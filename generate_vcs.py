@@ -4,31 +4,31 @@
 #
 #  @author       Jonas Scharpf (info@brainelectronics.de) brainelectronics
 #  @file         generate_vcs.py
-#  @date         June, 2021
-#  @version      0.2.1
-#  @brief        Generate vcsInfo.h file based on available Git informations
+#  @date         July, 2021
+#  @version      0.3.0
+#  @brief        Generate vcs info file based on available Git informations
 #
 #  @usage
 #  python generate_vcs.py \
 #   --directory=../../ \
 #   --hw-semver=4.0.0 \
-#   --output=./ \
-#   --save \
 #   --print \
-#   -d -v4
+#   --save \
+#   --output=./ \
+#   -v4 -d
 #
 #  python generate_vcs.py \
 #   --directory=../../ \
 #   --print \
-#   -d -v4
+#   -v4 -d
 #
 #  optional arguments:
 #   -h, --help
 #
 #   --directory     Path to the root git folder
 #   --hw-semver     SemVer of hardware revision
-#   -o, --output    Path to the output directory
-#   -p, --print     Print content to stdout
+#   -o, --output    Path to the output directory or file
+#   --print         Print content to stdout
 #   -s, --save      Save collected informations to specified output directory
 #
 #   -d, --debug     Flag, Output logger messages to stderr (default: False)
@@ -40,7 +40,7 @@
 __author__ = "Jonas Scharpf"
 __copyright__ = "Copyright by brainelectronics, ALL RIGHTS RESERVED"
 __credits__ = ["Jonas Scharpf"]
-__version__ = "0.2.1"
+__version__ = "0.3.0"
 __maintainer__ = "Jonas Scharpf"
 __email__ = "jonas@brainelectronics.de"
 __status__ = "Beta"
@@ -55,6 +55,7 @@ import sys
 
 # custom imports
 from git_wrapper.git_wrapper import GitWrapper
+from module_helper.module_helper import ModuleHelper
 
 
 class VAction(argparse.Action):
@@ -78,38 +79,8 @@ class VAction(argparse.Action):
             try:
                 self.values = int(values)
             except ValueError:
-                # self.values = values.count('v')+1
                 self.values = values.count('v')  # do not count the first '-v'
         setattr(args, self.dest, self.values)
-
-
-def create_logger(logger_name: str = None) -> logging.Logger:
-    """
-    Create a logger.
-
-    :param      logger_name:  The logger name
-    :type       logger_name:  str, optional
-
-    :returns:   Configured logger
-    :rtype:     logging.Logger
-    """
-    custom_format = '[%(asctime)s] [%(levelname)-8s] [%(filename)-15s @'\
-                    ' %(funcName)-15s:%(lineno)4s] %(message)s'
-
-    # configure logging
-    logging.basicConfig(level=logging.INFO,
-                        format=custom_format,
-                        stream=sys.stdout)
-
-    if logger_name and (isinstance(logger_name, str)):
-        logger = logging.getLogger(logger_name)
-    else:
-        logger = logging.getLogger(__name__)
-
-    # set the logger level to DEBUG if specified differently
-    logger.setLevel(logging.DEBUG)
-
-    return logger
 
 
 def parse_arguments() -> argparse.Namespace:
@@ -123,6 +94,7 @@ def parse_arguments() -> argparse.Namespace:
     Generate vcsInfo.h file
     """, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
+    # default arguments
     parser.add_argument('-d', '--debug',
                         action='store_true',
                         help='Output logger messages to stderr')
@@ -132,8 +104,11 @@ def parse_arguments() -> argparse.Namespace:
                         dest='verbose',
                         help='Set level of verbosity')
 
+    # specific arguments
     parser.add_argument('--directory',
                         required=True,
+                        type=lambda x: ModuleHelper.parser_valid_dir(parser,
+                                                                     x),
                         help='Path to the root git folder')
 
     parser.add_argument('--hw-semver',
@@ -142,12 +117,12 @@ def parse_arguments() -> argparse.Namespace:
 
     parser.add_argument('-o', '--output',
                         required=False,
-                        help='Path to the output directory')
+                        help='Path to the output directory or file')
 
-    parser.add_argument('-p', '--print',
-                        dest='print_content',
+    parser.add_argument('--print',
+                        dest='print_result',
                         action='store_true',
-                        help='Print content to stdout')
+                        help='Print collected info to stdout')
 
     parser.add_argument('-s', '--save',
                         dest='save_content',
@@ -202,66 +177,9 @@ def parse_semver(tag: str,
     return semver_dict
 
 
-def convert_string_to_uint16t(content: str,
-                              logger: logging.Logger) -> list:
-    """
-    Convert string to list of uint16_t values
-
-    :param      content:  The string content to convert
-    :type       content:  str
-    :param      logger:   The logger
-    :type       logger:   logger object
-
-    :returns:   Unicode converted list of uint16_t numbers
-    :rtype:     list
-    """
-    # convert all characters to their unicode code, 'A' -> 65 ...
-    unicode_list = [ord(x) for x in content]
-    logger.debug('Content as unicode: {}'.format(unicode_list))
-
-    # iter the list and create tuples
-    # represented by 8 bit, two unicode chars can be represented by a 16 bit
-    it = iter(unicode_list)
-    tuple_list = zip(it, it)
-
-    # create a 16 bit number of two unicode numbers
-    number_list = list()
-    for ele in tuple_list:
-        number_list.append((ele[0] << 8) | ele[1])
-
-    logger.debug('Content as numbers: {}'.format(number_list))
-
-    return number_list
-
-
-def load_file_content(file_path: str,
-                      logger: logging.Logger) -> list:
-    """
-    Get the content of a file.
-
-    :param      file_path:  The file path
-    :type       file_path:  str
-    :param      logger:     The logger
-    :type       logger:     logging.Logger
-
-    :returns:   Content of file
-    :rtype:     list
-    """
-    file_lines = list()
-
-    if Path(file_path).is_file():
-        logger.debug('Reading content of {}'.format(file_path))
-
-        with open(str(file_path), 'r') as file:
-            file_lines = file.read().splitlines()
-    else:
-        logger.warning('{} is not a valid file'.format(file_path))
-
-    return file_lines
-
-
 def create_vcs_content_dict(semver_dict: dict,
                             git_dict: dict,
+                            module_helper: ModuleHelper,
                             logger: logging.Logger) -> dict:
     """
     Create vcs content dictionary.
@@ -270,6 +188,8 @@ def create_vcs_content_dict(semver_dict: dict,
     :type       semver_dict:    dict
     :param      git_dict:       The git dictionary
     :type       git_dict:       dict
+    :param      module_helper:  The module helper
+    :type       module_helper:  ModuleHelper object
     :param      logger:         The logger
     :type       logger:         logger object
 
@@ -282,8 +202,8 @@ def create_vcs_content_dict(semver_dict: dict,
     epoch_datetime = datetime.datetime(year=1970, month=1, day=1)
     days_since_epoch = (datetime.datetime.utcnow() - epoch_datetime).days
     commit_sha_short = git_dict['sha_short']
-    commit_number_list = convert_string_to_uint16t(content=commit_sha_short,
-                                                   logger=logger)
+    commit_number_list = module_helper.convert_string_to_uint16t(
+        content=commit_sha_short)
 
     # file header content
     content_dict['MODIFIED_DATE'] = date_today
@@ -320,6 +240,8 @@ def create_vcs_content_dict(semver_dict: dict,
 def fill_vcs_template(lines: list,
                       semver_dict: dict,
                       git_dict: dict,
+                      file_name: str,
+                      module_helper: ModuleHelper,
                       logger: logging.Logger) -> list:
     """
     Replace vcs placeholders with content
@@ -330,6 +252,10 @@ def fill_vcs_template(lines: list,
     :type       semver_dict:    dict
     :param      git_dict:       The git dictionary
     :type       git_dict:       dict
+    :param      file_name:      The file name
+    :type       file_name:      str
+    :param      module_helper:  The module helper
+    :type       module_helper:  ModuleHelper object
     :param      logger:         The logger
     :type       logger:         logger object
 
@@ -340,7 +266,11 @@ def fill_vcs_template(lines: list,
 
     content_dict = create_vcs_content_dict(semver_dict=semver_dict,
                                            git_dict=git_dict,
+                                           module_helper=module_helper,
                                            logger=logger)
+    content_dict['FILENAME'] = file_name
+    c_file_name = file_name.replace('.', '_').replace('-', '_')
+    content_dict['FILENAME_FOR_C'] = c_file_name
 
     # iterate over all lines and replace placeholders
     for line in lines:
@@ -367,129 +297,27 @@ def fill_vcs_template(lines: list,
     return changed_lines
 
 
-def generate_vcs_info_file(output_path: str,
-                           semver_dict: dict,
-                           git_dict: dict,
-                           print_content: bool,
-                           save_content: bool,
-                           logger: logging.Logger) -> bool:
-    """
-    Generate VCS file based on semver dict and git dict
-
-    :param      output_path:    The output path
-    :type       output_path:    string
-    :param      semver_dict:    The semver dictionary
-    :type       semver_dict:    dict
-    :param      semver_dict:    The hardware dictionary
-    :type       semver_dict:    dict
-    :param      git_dict:       The git dictionary
-    :type       git_dict:       dict
-    :param      print_content:  Print content to console
-    :type       print_content:  bool
-    :param      save_content:   Save content to file
-    :type       save_content:   bool
-    :param      logger:         The logger
-    :type       logger:         logger object
-
-    :returns:   Result of reading, filling and saving the vcs file
-    :rtype:     bool
-    """
-
-    result = False
-
-    current_path = Path(__file__).resolve()
-    vcs_template_path = current_path.parent / '..' / 'templates'
-    vcs_template_file = vcs_template_path / 'vcsInfo.h.template'
-    logger.debug('VCS template path: {}'.format(vcs_template_file))
-    vcs_template_lines = load_file_content(file_path=vcs_template_file,
-                                           logger=logger)
-
-    if len(vcs_template_lines):
-        filled_vcs_template_lines = fill_vcs_template(lines=vcs_template_lines,
-                                                      semver_dict=semver_dict,
-                                                      git_dict=git_dict,
-                                                      logger=logger)
-
-        if (save_content is True) and (output_path is not None):
-            output_path = Path(output_path)
-            if not output_path.is_dir():
-                logger.error('Given path is not a directory')
-            else:
-                output_file = output_path / 'vcsInfo.h'
-                result = save_list_to_file(file_path=output_file,
-                                           content=filled_vcs_template_lines,
-                                           logger=logger)
-                logger.debug('Saved content to file: {}'.format(result))
-        else:
-            if output_path is None:
-                logger.warning('Could not save content to file as output path'
-                               ' is None')
-
-        if print_content:
-            for line in filled_vcs_template_lines:
-                print(line)
-
-    return result
-
-
-def save_list_to_file(file_path: str,
-                      content: list,
-                      logger: logging.Logger) -> bool:
-    """
-    Save content list to file.
-
-    :param      file_path:  The file path
-    :type       file_path:  str
-    :param      content:    The content to save
-    :type       content:    list
-    :param      logger:     The logger
-    :type       logger:     logger object
-
-    :returns:   Result of saving the file
-    :rtype:     bool
-    """
-    result = False
-    file_path = Path(file_path)
-    logger.debug('Save content to {}'.format(file_path))
-
-    with open(str(file_path), 'w') as file:
-        for line in content:
-            file.write("%s\n" % line)
-
-        result = True
-
-    return result
-
-
 if __name__ == '__main__':
-    logger = create_logger(__name__)
+    helper = ModuleHelper(quiet=True)
+
+    logger = helper.create_logger(__name__)
 
     # parse CLI arguments
     args = parse_arguments()
-    verbose_level = args.verbose
 
     # set verbose level based on user setting
-    LOG_LEVELS = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
-    LOG_LEVELS = LOG_LEVELS[::-1]
-
-    if verbose_level is None:
-        if not args.debug:
-            # disable the logger of this file
-            logger.disabled = True
-    else:
-        log_level = min(len(LOG_LEVELS) - 1, max(verbose_level, 0))
-        log_level_name = LOG_LEVELS[log_level]
-
-        # set the level of the logger of this file
-        logger.setLevel(log_level_name)
+    helper.set_logger_verbose_level(logger=logger,
+                                    verbose_level=args.verbose,
+                                    debug_output=not args.debug)
 
     # log the provided arguments
     logger.debug(args)
 
+    # take CLI parameters
     repo_path = args.directory
     hw_semver = args.hw_semver
     output_path = args.output
-    print_content = args.print_content
+    print_result = args.print_result
     save_content = args.save_content
 
     git_wrapper = GitWrapper(logger=logger, quiet=not args.debug)
@@ -507,12 +335,51 @@ if __name__ == '__main__':
         hw_semver_dict = dict()
     semver_dict = {**hw_semver_dict, **sw_semver_dict}
 
-    result = generate_vcs_info_file(output_path=output_path,
-                                    semver_dict=semver_dict,
-                                    git_dict=git_dict,
-                                    print_content=print_content,
-                                    save_content=save_content,
-                                    logger=logger)
+    result = False
+
+    current_path = Path(__file__).resolve()
+    vcs_template_path = current_path.parent / 'example'
+    vcs_template_file = vcs_template_path / 'vcsInfo.h.template'
+    logger.debug('VCS template path: {}'.format(vcs_template_file))
+    raw_lines = helper.get_raw_file_content(file_path=vcs_template_file)
+    vcs_template_lines = raw_lines.splitlines()
+
+    if len(vcs_template_lines):
+        default_file_name = 'vcsInfo.h'
+        if ((output_path is not None) and (not Path(output_path).is_dir())):
+            file_name = Path(output_path).name
+        else:
+            file_name = default_file_name
+
+        filled_vcs_lines = fill_vcs_template(lines=vcs_template_lines,
+                                             semver_dict=semver_dict,
+                                             git_dict=git_dict,
+                                             file_name=file_name,
+                                             module_helper=helper,
+                                             logger=logger)
+
+        if save_content:
+            if output_path is not None:
+                output_path = Path(output_path)
+
+                if output_path.is_dir():
+                    output_file = output_path / default_file_name
+                    logger.info('Given path is a directory, saving output as'.
+                                format(output_file))
+                else:
+                    output_file = output_path
+
+                result = helper.save_list_to_file(file_path=output_file,
+                                                  content=filled_vcs_lines,
+                                                  with_new_line=True)
+                logger.debug('Result of saving info {}'.format(result))
+            else:
+                logger.warning('Can not save to not specified file')
+
+        # do print as last step
+        if print_result:
+            for line in filled_vcs_lines:
+                print(line)
 
     if result:
         sys.exit()
