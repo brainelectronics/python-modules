@@ -1,0 +1,323 @@
+{
+    ".venv": {
+        "bin": {},
+        "include": {},
+        "lib": {
+            "python3.8": {
+                "site-packages": {
+                    "GitPython-3.1.18.dist-info": {},
+                    "PyYAML-5.4.1.dist-info": {},
+                    "__pycache__": {},
+                    "_yaml": {
+                        "__pycache__": {}
+                    },
+                    "git": {
+                        "__pycache__": {},
+                        "index": {
+                            "__pycache__": {}
+                        },
+                        "objects": {
+                            "__pycache__": {},
+                            "submodule": {
+                                "__pycache__": {}
+                            }
+                        },
+                        "refs": {
+                            "__pycache__": {}
+                        },
+                        "repo": {
+                            "__pycache__": {}
+                        }
+                    },
+                    "gitdb": {
+                        "__pycache__": {},
+                        "db": {
+                            "__pycache__": {}
+                        },
+                        "test": {
+                            "__pycache__": {}
+                        },
+                        "utils": {
+                            "__pycache__": {}
+                        }
+                    },
+                    "gitdb-4.0.7.dist-info": {},
+                    "pip": {
+                        "__pycache__": {},
+                        "_internal": {
+                            "__pycache__": {},
+                            "cli": {
+                                "__pycache__": {}
+                            },
+                            "commands": {
+                                "__pycache__": {}
+                            },
+                            "distributions": {
+                                "__pycache__": {}
+                            },
+                            "index": {
+                                "__pycache__": {}
+                            },
+                            "models": {
+                                "__pycache__": {}
+                            },
+                            "network": {
+                                "__pycache__": {}
+                            },
+                            "operations": {
+                                "__pycache__": {},
+                                "build": {
+                                    "__pycache__": {}
+                                },
+                                "install": {
+                                    "__pycache__": {}
+                                }
+                            },
+                            "req": {
+                                "__pycache__": {}
+                            },
+                            "resolution": {
+                                "__pycache__": {},
+                                "legacy": {
+                                    "__pycache__": {}
+                                },
+                                "resolvelib": {
+                                    "__pycache__": {}
+                                }
+                            },
+                            "utils": {
+                                "__pycache__": {}
+                            },
+                            "vcs": {
+                                "__pycache__": {}
+                            }
+                        },
+                        "_vendor": {
+                            "__pycache__": {},
+                            "cachecontrol": {
+                                "__pycache__": {},
+                                "caches": {
+                                    "__pycache__": {}
+                                }
+                            },
+                            "certifi": {
+                                "__pycache__": {}
+                            },
+                            "chardet": {
+                                "__pycache__": {},
+                                "cli": {
+                                    "__pycache__": {}
+                                }
+                            },
+                            "colorama": {
+                                "__pycache__": {}
+                            },
+                            "distlib": {
+                                "__pycache__": {},
+                                "_backport": {
+                                    "__pycache__": {}
+                                }
+                            },
+                            "html5lib": {
+                                "__pycache__": {},
+                                "_trie": {
+                                    "__pycache__": {}
+                                },
+                                "filters": {
+                                    "__pycache__": {}
+                                },
+                                "treeadapters": {
+                                    "__pycache__": {}
+                                },
+                                "treebuilders": {
+                                    "__pycache__": {}
+                                },
+                                "treewalkers": {
+                                    "__pycache__": {}
+                                }
+                            },
+                            "idna": {
+                                "__pycache__": {}
+                            },
+                            "msgpack": {
+                                "__pycache__": {}
+                            },
+                            "packaging": {
+                                "__pycache__": {}
+                            },
+                            "pep517": {
+                                "__pycache__": {}
+                            },
+                            "pkg_resources": {
+                                "__pycache__": {}
+                            },
+                            "progress": {
+                                "__pycache__": {}
+                            },
+                            "requests": {
+                                "__pycache__": {}
+                            },
+                            "resolvelib": {
+                                "__pycache__": {}
+                            },
+                            "toml": {
+                                "__pycache__": {}
+                            },
+                            "urllib3": {
+                                "__pycache__": {},
+                                "contrib": {
+                                    "__pycache__": {},
+                                    "_securetransport": {
+                                        "__pycache__": {}
+                                    }
+                                },
+                                "packages": {
+                                    "__pycache__": {},
+                                    "backports": {
+                                        "__pycache__": {}
+                                    },
+                                    "ssl_match_hostname": {
+                                        "__pycache__": {}
+                                    }
+                                },
+                                "util": {
+                                    "__pycache__": {}
+                                }
+                            },
+                            "webencodings": {
+                                "__pycache__": {}
+                            }
+                        }
+                    },
+                    "pip-20.1.1.dist-info": {},
+                    "pkg_resources": {
+                        "__pycache__": {},
+                        "_vendor": {
+                            "__pycache__": {},
+                            "packaging": {
+                                "__pycache__": {}
+                            }
+                        },
+                        "extern": {
+                            "__pycache__": {}
+                        }
+                    },
+                    "pymodbus": {
+                        "__pycache__": {},
+                        "client": {
+                            "__pycache__": {},
+                            "asynchronous": {
+                                "__pycache__": {},
+                                "async_io": {
+                                    "__pycache__": {}
+                                },
+                                "deprecated": {
+                                    "__pycache__": {}
+                                },
+                                "factory": {
+                                    "__pycache__": {}
+                                },
+                                "schedulers": {
+                                    "__pycache__": {}
+                                },
+                                "tornado": {
+                                    "__pycache__": {}
+                                },
+                                "twisted": {
+                                    "__pycache__": {}
+                                }
+                            }
+                        },
+                        "datastore": {
+                            "__pycache__": {},
+                            "database": {
+                                "__pycache__": {}
+                            }
+                        },
+                        "framer": {
+                            "__pycache__": {}
+                        },
+                        "internal": {
+                            "__pycache__": {}
+                        },
+                        "repl": {
+                            "__pycache__": {},
+                            "client": {
+                                "__pycache__": {}
+                            },
+                            "server": {
+                                "__pycache__": {}
+                            }
+                        },
+                        "server": {
+                            "__pycache__": {},
+                            "reactive": {
+                                "__pycache__": {}
+                            }
+                        }
+                    },
+                    "pymodbus-2.5.2.dist-info": {},
+                    "pyserial-3.5.dist-info": {},
+                    "serial": {
+                        "__pycache__": {},
+                        "threaded": {
+                            "__pycache__": {}
+                        },
+                        "tools": {
+                            "__pycache__": {}
+                        },
+                        "urlhandler": {
+                            "__pycache__": {}
+                        }
+                    },
+                    "setuptools": {
+                        "__pycache__": {},
+                        "_vendor": {
+                            "__pycache__": {},
+                            "packaging": {
+                                "__pycache__": {}
+                            }
+                        },
+                        "command": {
+                            "__pycache__": {}
+                        },
+                        "extern": {
+                            "__pycache__": {}
+                        }
+                    },
+                    "setuptools-47.1.0.dist-info": {},
+                    "six-1.16.0.dist-info": {},
+                    "smmap": {
+                        "__pycache__": {},
+                        "test": {
+                            "__pycache__": {}
+                        }
+                    },
+                    "smmap-4.0.0.dist-info": {},
+                    "yaml": {
+                        "__pycache__": {}
+                    }
+                }
+            }
+        }
+    },
+    "compilation_info_generator": {
+        "__pycache__": {}
+    },
+    "db_wrapper": {},
+    "examples": {
+        "info": "compilation-info.json"
+    },
+    "git_wrapper": {
+        "__pycache__": {}
+    },
+    "modbus_wrapper": {
+        "__pycache__": {}
+    },
+    "module_helper": {
+        "__pycache__": {}
+    },
+    "structure_info_generator": {
+        "__pycache__": {}
+    }
+}

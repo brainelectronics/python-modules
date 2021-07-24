@@ -1,0 +1,52 @@
+{
+    "CHARGING_POSSIBLE_COIL": true,
+    "STATION_AVAILABLE_COIL": true,
+    "CHARGING_CURRENT_HREG": 32,
+    "MAC_ADDRESS_HREG": [
+        43124,
+        7576,
+        976
+    ],
+    "SERIAL_NUMBER_HREG": [
+        17750,
+        17219,
+        12848,
+        12337,
+        13880,
+        13621
+    ],
+    "DEVICE_NAME_HREG": [
+        17750,
+        17219,
+        24369,
+        0,
+        0
+    ],
+    "DEVICE_IP_HREG": [
+        192,
+        168,
+        178,
+        188
+    ],
+    "SUBNET_MASK_HREG": [
+        255,
+        255,
+        255,
+        0
+    ],
+    "GATEWAY_ADDRESS_HREG": [
+        192,
+        168,
+        178,
+        1
+    ],
+    "DIGITAL_INPUT_EN_IST": false,
+    "DIGITAL_INPUT_ML_IST": false,
+    "DIGITAL_INPUT_LR_IST": false,
+    "EV_STATUS_IREG": 65,
+    "PROXIMITY_CURRENT_IREG": 1,
+    "CHARGING_TIME_IREG": 0,
+    "DIP_CONFIG_IREG": 0,
+    "FIRMWARE_VERSION_IREG": 1323892736,
+    "ERROR_CODE_IREG": 0
+}

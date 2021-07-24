@@ -1,0 +1,140 @@
+{
+    "COILS": {
+        "CHARGING_POSSIBLE_COIL": {
+            "register": 400,
+            "len": 1,
+            "description": "Charging possible",
+            "range": "",
+            "unit": ""
+        },
+        "STATION_AVAILABLE_COIL": {
+            "register": 402,
+            "len": 1,
+            "description": "Station available",
+            "range": "",
+            "unit": ""
+        }
+    },
+    "HREGS": {
+        "CHARGING_CURRENT_HREG": {
+            "register": 300,
+            "len": 1,
+            "description": "Charge current",
+            "range": "",
+            "unit": "A"
+        },
+        "MAC_ADDRESS_HREG": {
+            "register": 301,
+            "len": 3,
+            "description": "MAC address",
+            "range": "",
+            "unit": ""
+        },
+        "SERIAL_NUMBER_HREG": {
+            "register": 304,
+            "len": 6,
+            "description": "Serial number",
+            "range": "",
+            "unit": ""
+        },
+        "DEVICE_NAME_HREG": {
+            "register": 310,
+            "len": 5,
+            "description": "Device name",
+            "range": "",
+            "unit": ""
+        },
+        "DEVICE_IP_HREG": {
+            "register": 315,
+            "len": 4,
+            "description": "Device IP",
+            "range": "",
+            "unit": ""
+        },
+        "SUBNET_MASK_HREG": {
+            "register": 319,
+            "len": 4,
+            "description": "Subnet mask",
+            "range": "",
+            "unit": ""
+        },
+        "GATEWAY_ADDRESS_HREG": {
+            "register": 323,
+            "len": 4,
+            "description": "Gateway address",
+            "range": "",
+            "unit": ""
+        }
+    },
+    "ISTS": {
+        "DIGITAL_INPUT_EN_IST": {
+            "register": 200,
+            "len": 1,
+            "description": "Digital Input EN",
+            "range": "",
+            "unit": ""
+        },
+        "DIGITAL_INPUT_ML_IST": {
+            "register": 203,
+            "len": 1,
+            "description": "Digital Input ML",
+            "range": "",
+            "unit": ""
+        },
+        "DIGITAL_INPUT_LR_IST": {
+            "register": 205,
+            "len": 1,
+            "description": "Digital Input LR",
+            "range": "",
+            "unit": ""
+        }
+    },
+    "IREGS": {
+        "EV_STATUS_IREG": {
+            "register": 100,
+            "len": 1,
+            "description": "EV Status",
+            "range": "",
+            "unit": ""
+        },
+        "PROXIMITY_CURRENT_IREG": {
+            "register": 101,
+            "len": 1,
+            "description": "Proximity charging current",
+            "range": "",
+            "unit": "A"
+        },
+        "CHARGING_TIME_IREG": {
+            "register": 102,
+            "len": 2,
+            "description": "Charging time",
+            "range": "",
+            "unit": "sec"
+        },
+        "DIP_CONFIG_IREG": {
+            "register": 104,
+            "len": 1,
+            "description": "DIP config",
+            "range": "",
+            "unit": ""
+        },
+        "FIRMWARE_VERSION_IREG": {
+            "register": 105,
+            "len": 2,
+            "description": "Firmware version",
+            "range": "",
+            "unit": ""
+        },
+        "ERROR_CODE_IREG": {
+            "register": 107,
+            "len": 1,
+            "description": "Error code",
+            "range": "",
+            "unit": ""
+        }
+    },
+    "META": {
+        "created": "24.07.2021",
+        "modified": "24.07.2021"
+    }
+}

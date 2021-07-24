@@ -1,0 +1,16 @@
+{
+    "binary": {
+        "name": "README.md",
+        "size": 4569,
+        "timestamp": 1627137306
+    },
+    "ci": {
+        "build_id": 0,
+        "creator": "Jones",
+        "job_name": ""
+    },
+    "vcs": {
+        "commit": "d3298580",
+        "date": 1627137971
+    }
+}

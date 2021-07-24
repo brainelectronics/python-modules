@@ -1,0 +1,32 @@
+//
+//  $FILENAME$
+//  General
+//
+//  Created automatically by script on $CREATED_DATE$
+//  Modified on $MODIFIED_DATE$
+//
+//  Copyright (c) $YEAR$ brainelectronics. All rights reserved.
+//
+
+#ifndef $FILENAME_FOR_C$
+#define $FILENAME_FOR_C$
+
+#define CURRENT_FIRMWARE_VERSION $CURRENT_FIRMWARE_VERSION$    //<
+#define MAJOR_SW_VERSION    $MAJOR_SW_VERSION$    //< major software version
+#define MINOR_SW_VERSION    $MINOR_SW_VERSION$    //< minor software version
+#define PATCH_SW_VERSION    $PATCH_SW_VERSION$    //< patch software version
+#define SW_VERSION CURRENT_FIRMWARE_VERSION   //< software version
+
+#define MAJOR_HW_VERSION    $MAJOR_HW_VERSION$    //< major hardware version
+#define MINOR_HW_VERSION    $MINOR_HW_VERSION$    //< minor hardware version
+#define PATCH_HW_VERSION    $PATCH_HW_VERSION$    //< patch hardware version
+
+#define CREATION_DATE    $CREATION_DATE$    //< creation timestamp (days since epoch)
+#define ANNIVERSARY      26318    //< anniversary with Darling (DD M YY)
+
+#define COMMIT_SHA_I     $COMMIT_SHA_I$    //< first part of commit sha
+#define COMMIT_SHA_II    $COMMIT_SHA_II$    //< second part of commit sha
+#define COMMIT_SHA_III   $COMMIT_SHA_III$    //< third part of commit sha
+#define COMMIT_SHA_IV    $COMMIT_SHA_IV$    //< fourth part of commit sha
+
+#endif
