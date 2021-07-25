@@ -103,7 +103,7 @@ class SQLiteWrapper(ModuleHelper):
     def execute_sql_query(self,
                           db: sqlite3.Connection,
                           sql_query: str,
-                          data: str = None) -> None:
+                          data: str = None) -> list:
         """
         Perform a sql operation/query on a database
 
@@ -113,7 +113,12 @@ class SQLiteWrapper(ModuleHelper):
         :type       sql_query:  str
         :param      data:       Additional data for the call
         :type       data:       str
+
+        :returns:   Result of sql query execution
+        :rtype:     list
         """
+        result = list()
+
         cur = db.cursor()
 
         self.logger.debug('Execute SQL query: {} with {}'.format(sql_query,
@@ -125,8 +130,17 @@ class SQLiteWrapper(ModuleHelper):
         else:
             cur.execute(sql_query)
 
+        try:
+            result = cur.fetchall()
+        except Exception as e:
+            self.logger.warning('Failed to fetchall due to {}'.format(e))
+
+        self.logger.debug('SQL execution result: {}'.format(result))
+
         # Save (commit) the changes
         db.commit()
+
+        return result
 
     def insert_content_into_table(self,
                                   db: sqlite3.Connection,
@@ -184,6 +198,32 @@ class SQLiteWrapper(ModuleHelper):
 
         return content
 
+    def get_table_size(self, db: sqlite3.Connection, table_name: str) -> int:
+        """
+        Get the table size.
+
+        :param      db:           The database to create the table in
+        :type       db:           SQLite3 connection object
+        :param      table_name:   The table name
+        :type       table_name:   str
+
+        :returns:   The table size.
+        :rtype:     int
+        """
+        sql = '''SELECT COUNT(*) FROM {name}'''.format(name=table_name)
+
+        self.logger.debug('Request table size with: {}'.format(sql))
+        result = self.execute_sql_query(db=db, sql_query=sql)
+
+        if len(result) and isinstance(result[0], tuple):
+            result = result[0][0]
+        else:
+            result = -1
+
+        self.logger.debug('Table size is: {}'.format(result))
+
+        return result
+
     def close_connection(self, db: sqlite3.Connection) -> None:
         """
         Close connection to database.
@@ -195,9 +235,14 @@ class SQLiteWrapper(ModuleHelper):
         """
         db.close()
 
+    def progress(self, status, remaining, total):
+        self.logger.warning('Backuped {} of {} pages'.
+                            format(total-remaining, total))
+
     def backup_db_to_file(self,
                           db: sqlite3.Connection,
-                          backup_name: str) -> None:
+                          backup_name: str,
+                          show_progress: bool = False) -> None:
         """
         Backup database in file.
 
@@ -205,15 +250,20 @@ class SQLiteWrapper(ModuleHelper):
         :type       db:           SQLite3 connection object
         :param      backup_name:  The backup name
         :type       backup_name:  str
+        :param      show_progress: Flag to show progress on logger debug output
+        :type       show_progress: bool
         """
         # create a new database to backup the others database content to
         backup_db = self.connect_to_db(db_name='{}.sqlite3'.
                                        format(backup_name))
 
         # backup old database to new created one
-        db.backup(backup_db)
+        with backup_db:
+            if show_progress:
+                db.backup(backup_db, progress=self.progress)
+            else:
+                db.backup(backup_db)
 
-        self.close_connection(db=db)
         self.close_connection(db=backup_db)
 
     def get_random_content(self, column_dict: dict) -> dict:
