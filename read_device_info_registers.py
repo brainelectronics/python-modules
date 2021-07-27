@@ -5,7 +5,7 @@
 #  @author       Jonas Scharpf (info@brainelectronics.de) brainelectronics
 #  @file         read_device_info_registers.py
 #  @date         July, 2021
-#  @version      0.3.1
+#  @version      0.4.0
 #  @brief        Read all registers via RTU modbus or external IP
 #
 #  @required     pymodbus 2.3.0 or higher
@@ -59,7 +59,7 @@
 __author__ = "Jonas Scharpf"
 __copyright__ = "Copyright by brainelectronics, ALL RIGHTS RESERVED"
 __credits__ = ["Jonas Scharpf"]
-__version__ = "0.3.1"
+__version__ = "0.4.0"
 __maintainer__ = "Jonas Scharpf"
 __email__ = "info@brainelectronics.de"
 __status__ = "Beta"
@@ -228,6 +228,10 @@ if __name__ == "__main__":
                                          check_expectation=args.validate,
                                          file=args.file)
 
+    now = helper.get_unix_timestamp()
+    timestring = helper.format_timestamp(timestamp=now,
+                                         format="%m-%d-%Y %H:%M:%S")
+    read_content['TIMESTAMP'] = timestring
     logger.debug('Register content: {}'.format(read_content))
 
     if save_info:
