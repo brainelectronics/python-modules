@@ -5,7 +5,7 @@
 #  @author       Jonas Scharpf (info@brainelectronics.de) brainelectronics
 #  @file         generate_vcs.py
 #  @date         July, 2021
-#  @version      0.3.0
+#  @version      0.3.1
 #  @brief        Generate vcs info file based on available Git informations
 #
 #  @usage
@@ -28,8 +28,9 @@
 #   --directory     Path to the root git folder
 #   --hw-semver     SemVer of hardware revision
 #   -o, --output    Path to the output directory or file
-#   --print         Print content to stdout
-#   -s, --save      Save collected informations to specified output directory
+#   --print         Print collected (JSON) info to stdout
+#   -s, --save      Save collected informations to file specified with
+#                   '--output' or '-o'
 #
 #   -d, --debug     Flag, Output logger messages to stderr (default: False)
 #   -v, --verbose   Verbosity level (default: None), sets debug flag to True
@@ -40,7 +41,7 @@
 __author__ = "Jonas Scharpf"
 __copyright__ = "Copyright by brainelectronics, ALL RIGHTS RESERVED"
 __credits__ = ["Jonas Scharpf"]
-__version__ = "0.3.0"
+__version__ = "0.3.1"
 __maintainer__ = "Jonas Scharpf"
 __email__ = "jonas@brainelectronics.de"
 __status__ = "Beta"
@@ -115,6 +116,8 @@ def parse_arguments() -> argparse.Namespace:
 
     parser.add_argument('-o', '--output',
                         required=False,
+                        type=lambda x: ModuleHelper.parser_valid_dir(parser,
+                                                                     x),
                         help='Path to the output directory or file')
 
     parser.add_argument('--print',
@@ -125,8 +128,8 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument('-s', '--save',
                         dest='save_content',
                         action='store_true',
-                        help='Save collected informations to specified output '
-                        'directory')
+                        help='Save collected informations to file specified '
+                        'with --output or -o')
 
     parsed_args = parser.parse_args()
 

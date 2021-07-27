@@ -5,7 +5,7 @@
 #  @author       Jonas Scharpf (info@brainelectronics.de) brainelectronics
 #  @file         generate_structure_info.py
 #  @date         July, 2021
-#  @version      0.2.0
+#  @version      0.2.1
 #  @brief        Generate structure information data JSON file
 #
 #  This script ...
@@ -24,9 +24,10 @@
 #
 #   -o, --output    Path to output file containing info
 #   --pretty        Print collected info to stdout in human readable format
-#   --print         Print JSON to stdout
+#   --print         Print collected (JSON) info to stdout
 #   -r, --root      Path to root of folder to create structure for
-#   -s, --save      Save collected informations to file
+#   -s, --save      Save collected informations to file specified with
+#                   '--output' or '-o'
 #
 #   -d, --debug     Flag, Output logger messages to stderr (default: False)
 #   -v, --verbose   Verbosity level (default: None), sets debug flag to True
@@ -37,7 +38,7 @@
 __author__ = "Jonas Scharpf"
 __copyright__ = "Copyright by brainelectronics, ALL RIGHTS RESERVED"
 __credits__ = ["Jonas Scharpf"]
-__version__ = "0.2.0"
+__version__ = "0.2.1"
 __maintainer__ = "Jonas Scharpf"
 __email__ = "jonas@brainelectronics.de"
 __status__ = "Beta"
@@ -108,23 +109,26 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument('-o', '--output',
                         dest='output_file',
                         required=False,
+                        type=lambda x: ModuleHelper.parser_valid_dir(parser,
+                                                                     x),
                         help='Path to output file containing info')
 
     parser.add_argument('--pretty',
                         dest='print_pretty',
                         action='store_true',
-                        help='Print collected info to stdout human readable')
+                        help='Print collected info to stdout in human readable'
+                        'format')
 
     parser.add_argument('--print',
                         dest='print_result',
                         action='store_true',
-                        help='Print collected info to stdout')
+                        help='Print collected (JSON) info to stdout')
 
     parser.add_argument('-s', '--save',
                         dest='save_info',
                         action='store_true',
-                        help='Save collected informations to file specified'
-                        'Specified with --output or -o')
+                        help='Save collected informations to file specified '
+                        'with --output or -o')
 
     parsed_args = parser.parse_args()
 

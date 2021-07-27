@@ -5,7 +5,7 @@
 #  @author       Jonas Scharpf (info@brainelectronics.de) brainelectronics
 #  @file         read_device_info_registers.py
 #  @date         July, 2021
-#  @version      0.3.0
+#  @version      0.3.1
 #  @brief        Read all registers via RTU modbus or external IP
 #
 #  @required     pymodbus 2.3.0 or higher
@@ -36,14 +36,16 @@
 #  optional arguments:
 #   -h, --help
 #
-#   -a, --address   Address to connect, 192.168.0.8 or /dev/tty.SLAB_USBtoUART
+#   -a, --address   Address to connect to, like 192.168.0.8 or
+#                   /dev/tty.SLAB_USBtoUART
 #   -c, --connection    Type of Modbus connection, ['tcp', 'rtu']
 #   -f, --file      Path to Modbus registers file
 #   -o, --output    Path to output file containing info
 #   -p, --port      Port of connection, not required for RTU Serial
 #   --pretty        Print collected info to stdout in human readable format
-#   --print         Print JSON to stdout
-#   -s, --save      Save collected informations to file
+#   --print         Print collected (JSON) info to stdout
+#   -s, --save      Save collected informations to file specified with
+#                   '--output' or '-o'
 #   -u, --unit      Unit of connection
 #                   Tobi Test 1, Serial 10, Phoenix 180, ESP 255
 #   --validate      Validate received data with expected data
@@ -57,7 +59,7 @@
 __author__ = "Jonas Scharpf"
 __copyright__ = "Copyright by brainelectronics, ALL RIGHTS RESERVED"
 __credits__ = ["Jonas Scharpf"]
-__version__ = "0.3.0"
+__version__ = "0.3.1"
 __maintainer__ = "Jonas Scharpf"
 __email__ = "info@brainelectronics.de"
 __status__ = "Beta"
@@ -126,29 +128,34 @@ def parse_arguments() -> argparse.Namespace:
                         nargs='?',
                         default="tcp",
                         choices=['tcp', 'rtu'],
-                        required=False)
+                        required=True)
 
     parser.add_argument('-f',
                         '--file',
                         help='Path to Modbus registers file',
                         nargs='?',
                         default="modbusRegisters.json",
-                        required=False)
+                        type=lambda x: ModuleHelper.parser_valid_file(parser,
+                                                                      x),
+                        required=True)
 
     parser.add_argument('-o', '--output',
                         dest='output_file',
                         required=False,
+                        type=lambda x: ModuleHelper.parser_valid_dir(parser,
+                                                                     x),
                         help='Path to output file containing info')
 
     parser.add_argument('--pretty',
                         dest='print_pretty',
                         action='store_true',
-                        help='Print collected info to stdout human readable')
+                        help='Print collected info to stdout in human readable'
+                        'format')
 
     parser.add_argument('--print',
                         dest='print_result',
                         action='store_true',
-                        help='Print collected info to stdout')
+                        help='Print collected (JSON) info to stdout')
 
     parser.add_argument('-p',
                         '--port',
@@ -159,8 +166,8 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument('-s', '--save',
                         dest='save_info',
                         action='store_true',
-                        help='Save collected informations to file specified'
-                        'Specified with --output or -o')
+                        help='Save collected informations to file specified '
+                        'with --output or -o')
 
     parser.add_argument('-u',
                         '--unit',
