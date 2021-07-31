@@ -167,7 +167,7 @@ the input file. An example output can be found at
 [example/modbusRegisters.h](example/modbusRegisters.h)
 
 ```bash
-python3 generate_modbus_json.py \
+python generate_modbus_json.py \
 --input=example/modbusRegisters.h \
 --print \
 --pretty \
@@ -204,7 +204,7 @@ python read_device_info_registers.py \
 --print \
 --pretty \
 --save \
---output=raw-result-modbusRegisters-phoenix-info.json \
+--output=result-modbusRegisters-phoenix-info.json \
 --debug \
 --verbose=4
 ```
@@ -221,7 +221,7 @@ python read_device_info_registers.py \
 --print \
 --pretty \
 --save \
---output=raw-result-modbusRegisters-info.json \
+--output=result-modbusRegisters-info.json \
 --debug \
 --verbose=4
 ```
