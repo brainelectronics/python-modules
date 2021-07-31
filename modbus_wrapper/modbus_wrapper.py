@@ -7,6 +7,7 @@ Modbus register helper module
 Collection of modbus related functions
 """
 
+import datetime
 # from pymodbus.compat import iteritems
 # from pymodbus.constants import Endian
 # from pymodbus.payload import BinaryPayloadDecoder
@@ -58,21 +59,88 @@ class ModbusWrapper(ModuleHelper):
         :returns:   Human readable content
         :rtype:     str
         """
-        if key == 'DEVICE_UUID_IREG':
+        if key == 'CHARGING_STATE_IREG':
+            # MyEVSE
+            # value corresponds to the position in the list
+            possible_states = ['A', 'B', 'C', 'D', 'E', 'F', 'unknown']
+            return possible_states[value]
+        if key == 'COMMIT_SHA_IREG':
+            # MyEVSE
+            unicode_chars_list = list()
+            for ele in value:
+                unicode_chars_list.append((ele >> 8) & 0xFF)
+                unicode_chars_list.append(ele & 0xFF)
+            return ''.join(chr(x) for x in unicode_chars_list)
+        elif key == 'CREATION_DATE_IREG':
+            # MyEVSE
+            epoch_datetime = datetime.datetime(year=1970, month=1, day=1)
+            creation_day = datetime.timedelta(days=value)
+            return (epoch_datetime + creation_day).strftime("%m-%d-%Y")
+        elif key == 'DEVICE_MAC_IREG':
+            # MyEVSE
+            return ':'.join(format(x, 'x') for x in value)
+        elif key == 'DEVICE_NAME_HREG':
+            # Phoenix EVSE
+            # ASCII, character hex coded
+            # e.g. STATION123
+            # 0X5354 0X4154 0X494F 0X4E31 0X3233
+            # First character shall not be a number
+            # DEVICE_NAME_HREG: [17750, 17219, 24369, 0, 0]
+            hex_str = ''.join(format(ele, 'x') for ele in value if ele != 0)
+            return bytes.fromhex(hex_str).decode("ASCII")
+        elif key == 'DEVICE_UUID_IREG':
+            # MyEVSE
             it = iter(value)
             tupleList = zip(it, it)
             device_uuid_list = list()
             for ele in tupleList:
                 device_uuid_list.append(ele[0] << 16 | ele[1])
             return ', '.join(hex(x) for x in device_uuid_list)
-        elif key == 'DEVICE_MAC_IREG':
-            return ':'.join(format(x, 'x') for x in value)
-        elif key == 'COMMIT_SHA_IREG':
-            unicode_chars_list = list()
-            for ele in value:
-                unicode_chars_list.append((ele >> 8) & 0xFF)
-                unicode_chars_list.append(ele & 0xFF)
-            return ''.join(chr(x) for x in unicode_chars_list)
+        elif key == 'DIP_CONFIG_IREG':
+            # Phoenix EVSE
+            # binary
+            # DIP 1 = LSB
+            # each switch is represented by one bit.
+            return "{0:010b}".format(value)[::-1]
+        elif key == 'EV_STATUS_IREG':
+            # Phoenix EVSE
+            # ASCII (8 Bit), A ... F
+            return chr(value)
+        elif key == 'FIRMWARE_VERSION_IREG':
+            # Phoenix EVSE
+            # decimal
+            # e.g. 0.4.30 = 430
+            # FW[0] = 0; FW[1] = 4; FW[2] = 22;
+            # FW[2]+FW[1]*100+FW[0]*10.000
+            # FIRMWARE_VERSION_IREG: 1323892736 = [20201, 0]
+            # a uint32 is created from the list, but not necessary this time
+            fw = value >> 16
+            fw_0 = int(fw / 10000)
+            fw_1 = int((fw - (fw_0 * 10000)) / 100)
+            fw_2 = int(fw - (fw_0 * 10000) - (fw_1 * 100))
+            return '.'.join(str(ele) for ele in [fw_0, fw_1, fw_2])
+        elif key == 'MAC_ADDRESS_HREG':
+            # Phoenix EVSE
+            # hex
+            # e.g. 00:A0:45:66:4F:40 0X00A0 0X4566 0X4F40
+            # MAC_ADDRESS_HREG: [43124, 7576, 976]
+            val_str = ''.join(format(x, 'X') for x in value)
+            return ':'.join(val_str[i:i+2] for i in range(0, len(val_str), 2))
+        elif ((key == 'CHARGING_BEGIN_TIME_IREG') or
+              (key == 'CHARGING_DURATION_IREG') or
+              (key == 'CHARGING_END_TIME_IREG') or
+              (key == 'UPTIME_MS_IREG')):
+            # MyEVSE
+            d = datetime.timedelta(milliseconds=value)
+            return str(d)
+        elif key == 'SERIAL_NUMBER_HREG':
+            # Phoenix EVSE
+            # ASCII, character hex coded
+            # z.B. EVCC10000041 0X4556 0X4343 0X3130 0X3030 0X3030 0X3431
+            # E == 0x45 == d69
+            # SERIAL_NUMBER_HREG: [17750, 17219, 12848, 12337, 13880, 13621]
+            hex_str = ''.join(format(ele, 'x') for ele in value)
+            return bytes.fromhex(hex_str).decode("ASCII")
         else:
             return ''
 
@@ -81,6 +149,7 @@ class ModbusWrapper(ModuleHelper):
                            address: str = "",
                            port: int = 502,
                            unit: int = 180,
+                           baudrate: int = 9600,
                            check_expectation: bool = False,
                            file: str = 'modbusRegisters.json') -> dict:
         """
@@ -91,13 +160,15 @@ class ModbusWrapper(ModuleHelper):
         :param      address:            Address of the modbus device
         :type       address:            str
         :param      port:               The port
-        :type       port:               int
+        :type       port:               int, optional
         :param      unit:               Unit of the modbus device on the bus
-        :type       unit:               int
+        :type       unit:               int, optional
+        :param      baudrate:           Baudrate of the modbus RTU connection
+        :type       baudrate:           int, optional
         :param      check_expectation:  Flag to check expectation
-        :type       check_expectation:  bool
+        :type       check_expectation:  bool, optional
         :param      file:               The modbus register json file
-        :type       file:               str
+        :type       file:               str, optional
         """
         invalid_reg_content = 0
         connection = False
@@ -119,7 +190,7 @@ class ModbusWrapper(ModuleHelper):
                                         stopbits=1,
                                         bytesize=8,
                                         parity="N",
-                                        baudrate=9600,
+                                        baudrate=baudrate,
                                         timeout=10,
                                         retries=3)
         else:
@@ -333,8 +404,19 @@ class ModbusWrapper(ModuleHelper):
                 else:
                     register_val = registers[0:count]
 
-                self.logger.info('\t{}\t{}'.format(register_val,
-                                                   register_description))
+                restored = self.restore_human_readable_content(
+                                    key=key,
+                                    value=register_val)
+
+                if restored != '':
+                    self.logger.info('\t[{}]\t{}'.format(restored,
+                                                         register_description))
+                    self.logger.debug('\t{}\t{}'.format(register_val,
+                                                        register_description))
+                    register_content[key+'_HUMAN'] = restored
+                else:
+                    self.logger.info('\t{}\t{}'.format(register_val,
+                                                       register_description))
 
                 register_content[key] = register_val
 
@@ -480,7 +562,7 @@ class ModbusWrapper(ModuleHelper):
                                                          register_description))
                     self.logger.debug('\t{}\t{}'.format(register_val,
                                                         register_description))
-                    register_content['HUMAN_'+key] = restored
+                    register_content[key+'_HUMAN'] = restored
                 else:
                     self.logger.info('\t{}\t{}'.format(register_val,
                                                        register_description))
