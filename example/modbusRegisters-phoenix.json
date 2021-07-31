@@ -136,5 +136,10 @@
     "META": {
         "created": "24.07.2021",
         "modified": "24.07.2021"
+    },
+    "CONNECTION": {
+        "type": "tcp",
+        "unit": 180,
+        "address": "192.168.178.188"
     }
 }

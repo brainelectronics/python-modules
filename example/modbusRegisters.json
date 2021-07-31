@@ -66,5 +66,10 @@
     "META": {
         "created": "24.07.2021",
         "modified": "24.07.2021"
+    },
+    "CONNECTION": {
+        "type": "rtu",
+        "unit": 10,
+        "address": ""
     }
 }
