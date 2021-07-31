@@ -24,8 +24,8 @@
         1
     ],
     "DIGITAL_INPUT_EN_IST": false,
-    "DIGITAL_INPUT_LR_IST": false,
     "DIGITAL_INPUT_ML_IST": false,
+    "DIGITAL_INPUT_LR_IST": false,
     "EV_STATUS_IREG": "A",
     "PROXIMITY_CURRENT_IREG": 1,
     "CHARGING_TIME_IREG": 0,
