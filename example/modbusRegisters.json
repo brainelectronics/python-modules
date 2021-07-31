@@ -70,6 +70,7 @@
     "CONNECTION": {
         "type": "rtu",
         "unit": 10,
-        "address": ""
+        "address": "/dev/tty.wchusbserial1420",
+        "baudrate": 9600
     }
 }
