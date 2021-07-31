@@ -236,8 +236,7 @@ class SQLiteWrapper(ModuleHelper):
         db.close()
 
     def progress(self, status, remaining, total):
-        self.logger.warning('Backuped {} of {} pages'.
-                            format(total-remaining, total))
+        print('Backuped {} of {} pages'.format(total-remaining, total))
 
     def backup_db_to_file(self,
                           db: sqlite3.Connection,
