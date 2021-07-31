@@ -75,6 +75,7 @@ from module_helper.module_helper import ModuleHelper
 
 
 class VAction(argparse.Action):
+    """docstring for VAction"""
     def __init__(self, option_strings, dest, nargs=None, const=None,
                  default=None, type=None, choices=None, required=False,
                  help=None, metavar=None):
@@ -84,6 +85,7 @@ class VAction(argparse.Action):
         self.values = 0
 
     def __call__(self, parser, args, values, option_string=None):
+        """Actual call or action to perform"""
         if values is None:
             # do not increment here, so '-v' will use highest log level
             pass

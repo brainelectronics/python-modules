@@ -66,11 +66,9 @@ class VAction(argparse.Action):
 
     def __call__(self, parser, args, values, option_string=None):
         """Actual call or action to perform"""
-        # print('values: {v!r}'.format(v=values))
         if values is None:
             pass
             # do not increment here, so '-v' will use highest log level
-            # self.values += 1
         else:
             try:
                 self.values = int(values)
