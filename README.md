@@ -1,6 +1,6 @@
-# Information generator
+# Python modules
 
-Generate SCM and directory informations
+Custom brainelectronics python modules and wrappers
 
 ---------------
 
@@ -36,19 +36,96 @@ readable, formatted and sorted style. An example output can be found at
 
 ```bash
 python generate_compilation_info.py \
---file README.md \
---git ./ \
+--file=README.md \
+--git=./ \
 --print \
 --pretty \
 --save \
---output compilation-info.json \
+--output=compilation-info.json \
 --debug \
 --verbose=4
 ```
 
 ### DB wrapper
 
-TBD
+Request modbus data with the [Modbus wrapper](#modbus-wrapper) and save the
+result as a sqlite3 database with optional backup to file.
+
+This example requests the data of all registers defined in the file of
+[example/modbusRegisters-phoenix.json](example/modbusRegisters-phoenix.json)
+using `tcp` as connection type from a device with the unit (address) `180`
+with an interval of 10 sec for 10 times (iterations). A backup of the in RAM
+only database is created every `minute` to the folder `backup_folder`. The
+response of each request is printed in human readable, formatted and sorted
+style to the console.
+
+```bash
+python log_modbus_to_database.py \
+--file=example/modbusRegisters-phoenix.json \
+--connection=tcp \
+--address=192.168.178.188 \
+--unit=180 \
+--iterations=10 \
+--interval=10 \
+--backup=minute \
+--print \
+--pretty \
+--save \
+--output=backup_folder \
+--debug \
+--verbose=4
+```
+
+#### Install phpLiteAdmin (optional)
+
+```bash
+# install Apache2
+sudo apt-get install apache2 -y
+
+# install PHP and required modules
+sudo apt-get install php5 libapache2-mod-php5 php5-sqlite zip unzip -y
+
+# create database folder in web directory
+cd /var/www/html
+sudo mkdir database
+cd database
+
+# download phpLiteAdmin
+sudo wget https://bitbucket.org/phpliteadmin/public/downloads/phpLiteAdmin_v1-9-7-1.zip
+sudo unzip phpLiteAdmin_v1-9-7-1.zip
+sudo rm phpLiteAdmin_v1-9-7-1.zip
+
+# copy example config as real config
+sudo cp phpliteadmin.config.sample.php phpliteadmin.config.php
+
+# may adjust username or other configs now in phpliteadmin.config.php
+
+cd ..
+
+# change ownership, access and execution permissions of the database directory
+sudo chmod 757 database
+sudo chmod 644 database/*.php
+sudo chown root:root database
+sudo chown root:root database/*
+```
+
+To copy all generated SQlite3 databases inside `database` to the phpLiteAdmin
+installation directory `/var/www/html/database`, call the following command
+
+```bash
+scp -r database/*.sqlite3 username@ip-address:/var/www/html/database
+```
+
+At this point the copied/uploaded databases are only readable but not yet
+writable/editable by phpLiteAdmin. To make them editable call this command on
+the machine running phpLiteAdmin
+
+```bash
+sudo chmod 646 /var/www/html/database/*.sqlite3
+```
+
+Finally login to phpLiteAdmin with the default password `admin` at
+[http://ip-address/database/phpliteadmin.php](http://ip-address/database/phpliteadmin.php)
 
 ### Git wrapper
 
@@ -65,17 +142,19 @@ python generate_vcs.py \
 --directory=./ \
 --print \
 --save \
---output ./ \
+--output=./ \
 --debug \
 --verbose=4
 ```
 
 ### Modbus JSON Generator
 
-Generate a JSON file for the Modbus wrapper based on a header file.
+Generate a JSON file for the [Modbus wrapper](#modbus-wrapper) based on a
+header file.
 
 The header file, which might be included in some C project, is converted into
-a JSON file which is useable by the onwards described Modbus wrapper.
+a JSON file which is useable by the onwards described
+[Modbus wrapper](#modbus-wrapper).
 
 A range or a unit can be given as a comment inside of squared brackets before
 the actual description of this register, refer to
@@ -89,12 +168,13 @@ the input file. An example output can be found at
 
 ```bash
 python3 generate_modbus_json.py \
---input example/modbusRegisters.h \
+--input=example/modbusRegisters.h \
 --print \
 --pretty \
 --save \
---output modbusRegisters.json \
--v4 -d
+--output=modbusRegisters.json \
+--debug \
+--verbose=4
 ```
 
 ### Modbus wrapper
@@ -124,7 +204,7 @@ python read_device_info_registers.py \
 --print \
 --pretty \
 --save \
---output result-modbusRegisters-phoenix-info.json \
+--output=raw-result-modbusRegisters-phoenix-info.json \
 --debug \
 --verbose=4
 ```
@@ -137,10 +217,11 @@ python read_device_info_registers.py \
 --connection=rtu \
 --address=/dev/tty.wchusbserial1420 \
 --unit=10 \
+--baudrate=19200 \
 --print \
 --pretty \
 --save \
---output result-modbusRegisters-info.json \
+--output=raw-result-modbusRegisters-info.json \
 --debug \
 --verbose=4
 ```
@@ -161,7 +242,7 @@ python generate_structure_info.py \
 --print \
 --pretty \
 --save \
---output structure-info.json \
+--output=structure-info.json \
 --debug \
 --verbose=4
 ```

@@ -126,7 +126,7 @@ def parse_arguments() -> argparse.Namespace:
 
     parser.add_argument('--baudrate',
                         help='Baudrate of RTU connection',
-                        default=19200,
+                        default=9600,
                         type=int,
                         required=False)
 
