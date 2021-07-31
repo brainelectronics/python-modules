@@ -45,13 +45,11 @@ __status__ = "Beta"
 
 import argparse
 import json
-import logging
-from pathlib import Path
-import sys
 
 # custom imports
 from module_helper.module_helper import ModuleHelper
-from structure_info_generator.structure_info_generator import StructureInfoGenerator
+from structure_info_generator.structure_info_generator \
+    import StructureInfoGenerator
 
 
 class VAction(argparse.Action):
@@ -109,8 +107,6 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument('-o', '--output',
                         dest='output_file',
                         required=False,
-                        type=lambda x: ModuleHelper.parser_valid_dir(parser,
-                                                                     x),
                         help='Path to output file containing info')
 
     parser.add_argument('--pretty',

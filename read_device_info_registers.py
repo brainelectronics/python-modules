@@ -150,8 +150,6 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument('-o', '--output',
                         dest='output_file',
                         required=False,
-                        type=lambda x: ModuleHelper.parser_valid_dir(parser,
-                                                                     x),
                         help='Path to output file containing info')
 
     parser.add_argument('--pretty',

@@ -61,7 +61,8 @@ class StructureInfoGenerator(ModuleHelper):
                     # check for detailed informations about this folder
                     for name in ['targets.txt', 'brief.txt']:
                         if ele.name == name:
-                            file_content = self.get_raw_file_content(file_path=str(ele))
+                            file_content = self.get_raw_file_content(
+                                file_path=str(ele))
                             # add content of file to dict
                             if file_content:
                                 info_dict[ele.stem] = file_content

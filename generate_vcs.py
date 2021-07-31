@@ -365,7 +365,7 @@ if __name__ == '__main__':
 
                 if output_path.is_dir():
                     output_file = output_path / default_file_name
-                    logger.info('Given path is a directory, saving output as'.
+                    logger.info('Given path is directory, saving output as {}'.
                                 format(output_file))
                 else:
                     output_file = output_path

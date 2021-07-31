@@ -49,7 +49,6 @@ import json
 import logging
 from pathlib import Path
 import re
-import sys
 
 # custom imports
 from module_helper.module_helper import ModuleHelper
@@ -108,8 +107,6 @@ def parse_arguments() -> argparse.Namespace:
 
     parser.add_argument('--output',
                         required=False,
-                        type=lambda x: ModuleHelper.parser_valid_dir(parser,
-                                                                     x),
                         help='Path to output folder or file for JSON file, '
                         'default name is set as "registers.json" if path is '
                         'provided')
