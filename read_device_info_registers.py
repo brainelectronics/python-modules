@@ -16,6 +16,7 @@
 #   --connection=rtu \
 #   --address=/dev/tty.wchusbserial1420 \
 #   --unit=10 \
+#   --baudrate=19200 \
 #   --print \
 #   --pretty \
 #   --save \
@@ -38,6 +39,7 @@
 #
 #   -a, --address   Address to connect to, like 192.168.0.8 or
 #                   /dev/tty.SLAB_USBtoUART
+#   --baudrate      Baudrate of RTU connection
 #   -c, --connection    Type of Modbus connection, ['tcp', 'rtu']
 #   -f, --file      Path to Modbus registers file
 #   -o, --output    Path to output file containing info
@@ -122,6 +124,12 @@ def parse_arguments() -> argparse.Namespace:
                         nargs='?',
                         required=True)
 
+    parser.add_argument('--baudrate',
+                        help='Baudrate of RTU connection',
+                        default=19200,
+                        type=int,
+                        required=False)
+
     parser.add_argument('-c',
                         '--connection',
                         help='Type of Modbus connection',
@@ -161,6 +169,7 @@ def parse_arguments() -> argparse.Namespace:
                         '--port',
                         help='Port of connection, not required for RTU Serial',
                         default=502,
+                        type=int,
                         required=False)
 
     parser.add_argument('-s', '--save',
@@ -174,6 +183,7 @@ def parse_arguments() -> argparse.Namespace:
                         help=('Unit of connection, '
                               'Phoenix 180, Tobi Test 1, ESP 255, Serial 10'),
                         default=180,
+                        type=int,
                         required=False)
 
     parser.add_argument('--validate',
@@ -207,11 +217,9 @@ if __name__ == "__main__":
     logger.debug(args)
 
     # take CLI parameters
-    try:
-        port = int(args.port)
-        unit = int(args.unit)
-    except Exception as e:
-        raise e
+    port = args.port
+    unit = args.unit
+    baudrate = args.baudrate
     output_file = args.output_file
     save_info = args.save_info
     print_result = args.print_result
@@ -225,6 +233,7 @@ if __name__ == "__main__":
                                          address=args.address,
                                          port=port,
                                          unit=unit,
+                                         baudrate=baudrate,
                                          check_expectation=args.validate,
                                          file=args.file)
 
