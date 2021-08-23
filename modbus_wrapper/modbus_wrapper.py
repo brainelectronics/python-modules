@@ -404,9 +404,12 @@ class ModbusWrapper(ModuleHelper):
                 else:
                     register_val = registers[0:count]
 
-                restored = self.restore_human_readable_content(
-                                    key=key,
-                                    value=register_val)
+                try:
+                    restored = self.restore_human_readable_content(
+                                        key=key,
+                                        value=register_val)
+                except Exception as e:
+                    restored = ''
 
                 if restored != '':
                     self.logger.info('\t[{}]\t{}'.format(restored,
@@ -547,15 +550,20 @@ class ModbusWrapper(ModuleHelper):
 
                 if count == 1:
                     register_val = registers[0]
-                elif count == 2:
+                elif count == 2 and len(registers) == 2:
                     # actual a uint32_t value, reconstruct it
                     register_val = registers[0] << 16 | registers[1]
                 else:
+                    # using a higher range than available is save and will just
+                    # return all available content of the list
                     register_val = registers[0:count]
 
-                restored = self.restore_human_readable_content(
-                    key=key,
-                    value=register_val)
+                try:
+                    restored = self.restore_human_readable_content(
+                        key=key,
+                        value=register_val)
+                except Exception as e:
+                    restored = ''
 
                 if restored != '':
                     self.logger.info('\t[{}]\t{}'.format(restored,

@@ -14,6 +14,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.1] - 2021-08-xx
+### Fixed
+- Usage example for modbus requests on TCP use correct `port` instead of `unit`
+- Catch error on restoring data to human readable content and skip restoring
+- Reconstruct possible uint32_t only if length of response allows access to
+  required list position
+
 ## [0.7.0] - 2021-07-31
 ### Added
 - `log_modbus_to_database` module added
