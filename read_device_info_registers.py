@@ -27,7 +27,7 @@
 #   --file=example/modbusRegisters-phoenix.json \
 #   --connection=tcp \
 #   --address=192.168.0.8 \
-#   --unit=180 \
+#   --port=180 \
 #   --print \
 #   --pretty \
 #   --save \

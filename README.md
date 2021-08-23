@@ -64,7 +64,7 @@ python log_modbus_to_database.py \
 --file=example/modbusRegisters-phoenix.json \
 --connection=tcp \
 --address=192.168.178.188 \
---unit=180 \
+--port=180 \
 --iterations=10 \
 --interval=10 \
 --backup=minute \
@@ -200,7 +200,7 @@ python read_device_info_registers.py \
 --file=example/modbusRegisters-phoenix.json \
 --connection=tcp \
 --address=192.168.178.188 \
---unit=180 \
+--port=180 \
 --print \
 --pretty \
 --save \
