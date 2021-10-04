@@ -179,11 +179,13 @@ python generate_modbus_json.py \
 
 ### Modbus wrapper
 
-Perform read requests of modbus registers on TCP or RTU devices.
+Perform read/write requests of modbus registers on TCP or RTU devices.
 
 The unit of the device might be different, e.g. some commercial charging
 stations use `180` while ESP devices use `255` by default for TCP. The MyEVSE
 is using the bus address (unit) `10` on RTU.
+
+#### Reading data
 
 This example call requests the data of all registers defined in the file of
 `example/modbusRegisters-phoenix.json` using either `tcp` (network) or `rtu`
@@ -193,7 +195,7 @@ or `result-modbusRegisters-info.json` (rtu) in human readable, formatted and
 sorted style. An example output can be found in the [example/](example/)
 folder.
 
-#### Modbus TCP
+##### Modbus TCP
 
 ```bash
 python read_device_info_registers.py \
@@ -209,7 +211,7 @@ python read_device_info_registers.py \
 --verbose=4
 ```
 
-#### Modbus RTU
+##### Modbus RTU
 
 ```bash
 python read_device_info_registers.py \
@@ -224,6 +226,40 @@ python read_device_info_registers.py \
 --output=result-modbusRegisters-info.json \
 --debug \
 --verbose=4
+```
+
+#### Writing data
+
+This example call sets the data of all registers defined in the file of
+`example/set-modbusRegisters-MyEVSE.json` using either `tcp` (network) or `rtu`
+(serial) on a device with the unit (address) `180` (tcp case) or `10` (rtu
+case) and prints the result in human readable, formatted and sorted style.
+
+##### Modbus TCP
+
+```bash
+python3 write_device_info_registers.py \
+--file=example/set-modbusRegisters-MyEVSE.json \
+--connection=tcp \
+--address=192.168.0.8 \
+--port=180 \
+--print \
+--pretty \
+-v4 -d
+```
+
+##### Modbus RTU
+
+```bash
+python3 write_device_info_registers.py \
+--file=example/set-modbusRegisters-MyEVSE.json \
+--connection=rtu \
+--address=/dev/tty.wchusbserial1420 \
+--unit=10 \
+--baudrate=19200 \
+--print \
+--pretty \
+-v4 -d
 ```
 
 ### Structure info generator

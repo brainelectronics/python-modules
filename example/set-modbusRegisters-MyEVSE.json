@@ -1,0 +1,41 @@
+{
+    "COILS": {
+        "SYSTEM_RESET_COIL": {
+            "register": 10,
+            "val": 0,
+            "description": "perform controller reset on 1",
+            "unit": ""
+        },
+        "CONFIG_RESET_COIL": {
+            "register": 11,
+            "val": 0,
+            "description": "perform EEPROM config reset on 1",
+            "unit": ""
+        },
+        "USE_MB_CURRENT_COIL": {
+            "register": 20,
+            "val": 1,
+            "description": "use CHARGING_CURRENT_IREG value",
+            "unit": ""
+        }
+    },
+    "HREGS": {
+        "CHARGING_CURRENT_HREG": {
+            "register": 21,
+            "val": 21,
+            "description": "[A] charging current, requires USE_MB_CURRENT_COIL",
+            "unit": "A"
+        }
+    },
+    "META": {
+        "created": "23.08.2021",
+        "modified": "23.08.2021"
+    },
+    "CONNECTION": {
+        "type": "rtu",
+        "unit": 10,
+        "address": "/dev/tty.wchusbserial1420",
+        "baudrate": 9600,
+        "mode": "slave"
+    }
+}
