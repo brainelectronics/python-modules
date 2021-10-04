@@ -16,6 +16,7 @@ from pymodbus.client.sync import ModbusTcpClient        # as ModbusClient
 from pymodbus.client.sync import ModbusSerialClient     # as ModbusClient
 import logging
 from typing import Tuple
+from typing import Union
 
 # custom imports
 from module_helper.module_helper import ModuleHelper
@@ -205,7 +206,7 @@ class ModbusWrapper(ModuleHelper):
             self.logger.error('Connection failed')
             return read_content
 
-        # Coils (only getter) [0, 1]
+        # Coils (setter+getter) [0, 1]
         self.logger.info('Coils:')
         if 'COILS' in modbus_registers:
             invalid_counter, coil_register_content = self.read_coil_registers(
@@ -280,15 +281,122 @@ class ModbusWrapper(ModuleHelper):
 
         return read_content
 
+    def write_all_registers(self,
+                            device_type: str = "tcp",
+                            address: str = "",
+                            port: int = 502,
+                            unit: int = 180,
+                            baudrate: int = 9600,
+                            file: str = 'modbusRegisters.json') -> dict:
+        """
+        Write all modbus registers.
+
+        :param      device_type:        The device type, "tcp" or "rtu"
+        :type       device_type:        str
+        :param      address:            Address of the modbus device
+        :type       address:            str
+        :param      port:               The port
+        :type       port:               int, optional
+        :param      unit:               Unit of the modbus device on the bus
+        :type       unit:               int, optional
+        :param      baudrate:           Baudrate of the modbus RTU connection
+        :type       baudrate:           int, optional
+        :param      file:               The modbus register json file
+        :type       file:               str, optional
+        """
+        failed_reg_counter = 0
+        connection = False
+        failed_reg_log = dict()
+        modbus_registers = self.load_modbus_registers_file(file_path=file)
+
+        if device_type == "tcp":
+            # TCP/IP Client
+            # default value in src/ModbusSettings.h or src/ModbusIP_ESP8266.h
+            client = ModbusTcpClient(host=address,
+                                     retries=3,
+                                     # retry_on_empty=True,
+                                     timeout=10,
+                                     port=port)
+        elif device_type == "rtu":
+            # Serial RTU Client
+            client = ModbusSerialClient(method="rtu",
+                                        port=address,
+                                        stopbits=1,
+                                        bytesize=8,
+                                        parity="N",
+                                        baudrate=baudrate,
+                                        timeout=10,
+                                        retries=3)
+        else:
+            self.logger.error('Device type unknown')
+            return failed_reg_log
+
+        connection = client.connect()
+        self.logger.debug('Connection result: {}'.format(connection))
+
+        # exit if no connection is established
+        if connection is False:
+            self.logger.error('Connection failed')
+            return failed_reg_log
+
+        # Coils (setter+getter) [0, 1]
+        self.logger.info('Coils:')
+        if 'COILS' in modbus_registers:
+            failed_counter, coil_register_log = self.write_coil_registers(
+                client=client,
+                unit=unit,
+                modbus_registers=modbus_registers['COILS'])
+            self.logger.debug('coil_register_log: {}'.
+                              format(coil_register_log))
+
+            failed_reg_counter += failed_counter
+            failed_reg_log.update(coil_register_log)
+        else:
+            self.logger.info('No COILS defined, skipping')
+
+        # Hregs (setter+getter) [0, 65535]
+        self.logger.info('Hregs:')
+        if 'HREGS' in modbus_registers:
+            failed_counter, hreg_register_log = self.write_hregs_registers(
+                client=client,
+                unit=unit,
+                modbus_registers=modbus_registers['HREGS'])
+            self.logger.debug('hreg_register_log: {}'.
+                              format(hreg_register_log))
+
+            failed_reg_counter += failed_counter
+            failed_reg_log.update(hreg_register_log)
+        else:
+            self.logger.info('No HREGS defined, skipping')
+
+        # Ists (only getter) [0, 1]
+        if 'ISTS' in modbus_registers:
+            self.logger.info('ISTS can only be read, skipping')
+
+        # Iregs (only getter) [0, 65535]
+        if 'IREGS' in modbus_registers:
+            self.logger.info('IREGS can only be read, skipping')
+
+        client.close()
+        self.logger.debug('Connection closed')
+
+        if failed_reg_counter:
+            self.logger.warning('Failed to set {} register values: {}'.
+                                format(failed_reg_counter, failed_reg_log))
+
+        self.logger.debug(failed_reg_log)
+
+        return failed_reg_log
+
     def read_coil_registers(self,
-                            client,
+                            client: Union[ModbusTcpClient, ModbusSerialClient],
                             unit: int,
                             modbus_registers: dict,
                             check_expectation: bool) -> Tuple[int, dict]:
         """
         Read all coil registers.
 
-        Coils (only getter) [0, 1], function 01 - read single register
+        Coils (setter+getter) [0, 1], function 01 - read single register
 
         :param      client:             The client
         :type       client:             ModbusTcpClient or ModbusSerialClient
@@ -347,8 +455,53 @@ class ModbusWrapper(ModuleHelper):
 
         return invalid_reg_counter, register_content
 
+    def write_coil_registers(self,
+                             client: Union[ModbusTcpClient, ModbusSerialClient],
+                             unit: int,
+                             modbus_registers: dict) -> Tuple[int, dict]:
+        """
+        Write all coil registers.
+
+        Coils (setter+getter) [0, 1], function 05 - write single register
+
+        :param      client:             The client
+        :type       client:             ModbusTcpClient or ModbusSerialClient
+        :param      unit:               Unit of the modbus device on the bus
+        :type       unit:               int
+        :param      modbus_registers:   The modbus registers
+        :type       modbus_registers:   dict
+
+        :returns:   Amount of failed content and failed registers as dict
+        :rtype:     tuple
+        """
+        failed_reg_counter = 0
+        failed_reg_log = dict()
+
+        for key, val in modbus_registers.items():
+            self.logger.debug('\tkey: {}'.format(key))
+            self.logger.debug('\t\tval: {}'.format(val))
+
+            register_address = val['register']
+            set_val = val['val']
+            register_description = val['description']
+
+            response = client.write_coil(address=register_address,
+                                         value=set_val,
+                                         unit=unit)
+
+            if response.isError():
+                failed_reg_counter += 1
+                failed_reg_log[key] = False
+                self.logger.warning('\tFailed to set {} to {}'.
+                                    format(key, set_val))
+            else:
+                self.logger.debug('\tSuccessfully set {} to {}'.
+                                  format(key, set_val))
+
+        return failed_reg_counter, failed_reg_log
+
     def read_hregs_registers(self,
-                             client,
+                             client: Union[ModbusTcpClient, ModbusSerialClient],
                              unit: int,
                              modbus_registers: dict,
                              check_expectation: bool) -> Tuple[int, dict]:
@@ -432,8 +585,53 @@ class ModbusWrapper(ModuleHelper):
 
         return invalid_reg_counter, register_content
 
+    def write_hregs_registers(self,
+                              client: Union[ModbusTcpClient, ModbusSerialClient],
+                              unit: int,
+                              modbus_registers: dict) -> Tuple[int, dict]:
+        """
+        Write all holding registers.
+
+        Hregs (setter+getter) [0, 65535], function 06 - write holding register
+
+        :param      client:             The client
+        :type       client:             ModbusTcpClient or ModbusSerialClient
+        :param      unit:               Unit of the modbus device on the bus
+        :type       unit:               int
+        :param      modbus_registers:   The modbus registers
+        :type       modbus_registers:   dict
+
+        :returns:   Amount of failed content and failed registers as dict
+        :rtype:     tuple
+        """
+        failed_reg_counter = 0
+        failed_reg_log = dict()
+
+        for key, val in modbus_registers.items():
+            self.logger.debug('\tkey: {}'.format(key))
+            self.logger.debug('\t\tval: {}'.format(val))
+
+            register_address = val['register']
+            set_val = val['val']
+            register_description = val['description']
+
+            response = client.write_register(address=register_address,
+                                             value=set_val,
+                                             unit=unit)
+
+            if response.isError():
+                failed_reg_counter += 1
+                failed_reg_log[key] = False
+                self.logger.warning('Failed to set {} to {}'.
+                                    format(register_address, set_val))
+            else:
+                self.logger.debug('Successfully set {} to {}'.
+                                  format(register_address, set_val))
+
+        return failed_reg_counter, failed_reg_log
+
     def read_ists_registers(self,
-                            client,
+                            client: Union[ModbusTcpClient, ModbusSerialClient],
                             unit: int,
                             modbus_registers: dict,
                             check_expectation: bool) -> Tuple[int, dict]:
@@ -501,7 +699,7 @@ class ModbusWrapper(ModuleHelper):
         return invalid_reg_counter, register_content
 
     def read_iregs_registers(self,
-                             client,
+                             client: Union[ModbusTcpClient, ModbusSerialClient],
                              unit: int,
                              modbus_registers: dict,
                              check_expectation: bool) -> Tuple[int, dict]:
