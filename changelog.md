@@ -14,7 +14,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.7.1] - 2021-08-xx
+## [0.8.0] - 2021-10-04
+### Added
+- Holding registers and coils can be set via functions or based on input JSON
+- Example script to set registers with JSON file
+
+### Changed
+- Update README with example usage of register setting script
+
 ### Fixed
 - Usage example for modbus requests on TCP use correct `port` instead of `unit`
 - Catch error on restoring data to human readable content and skip restoring
@@ -113,8 +120,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - requirements file with all used python packages
 
 <!-- Links -->
-[Unreleased]: https://github.com/brainelectronics/python-modules/compare/0.7.0...develop
+[Unreleased]: https://github.com/brainelectronics/python-modules/compare/0.8.0...develop
 
+[0.8.0]: https://github.com/brainelectronics/python-modules/compare/0.7.0...0.8.0
 [0.7.0]: https://github.com/brainelectronics/python-modules/compare/0.6.0...0.7.0
 [0.6.0]: https://github.com/brainelectronics/python-modules/compare/0.5.0...0.6.0
 [0.5.0]: https://github.com/brainelectronics/python-modules/compare/0.4.0...0.5.0
