@@ -14,6 +14,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.0] - 2021-12-17
+### Added
+- Modbus register name defines can contain numbers
+- `.gitignore` file added with default python ignores
+
+### Changed
+- Set register description to `""` if no description is provided in input
+  modbus register header file
+- Set semver informations to `0.1.0` in case no semver version could be parsed
+
 ## [0.8.0] - 2021-10-04
 ### Added
 - Holding registers and coils can be set via functions or based on input JSON
@@ -120,8 +130,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - requirements file with all used python packages
 
 <!-- Links -->
-[Unreleased]: https://github.com/brainelectronics/python-modules/compare/0.8.0...develop
+[Unreleased]: https://github.com/brainelectronics/python-modules/compare/0.9.0...develop
 
+[0.9.0]: https://github.com/brainelectronics/python-modules/compare/0.8.0...0.9.0
 [0.8.0]: https://github.com/brainelectronics/python-modules/compare/0.7.0...0.8.0
 [0.7.0]: https://github.com/brainelectronics/python-modules/compare/0.6.0...0.7.0
 [0.6.0]: https://github.com/brainelectronics/python-modules/compare/0.5.0...0.6.0

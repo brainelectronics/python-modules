@@ -4,8 +4,8 @@
 #
 #  @author       Jonas Scharpf (info@brainelectronics.de) brainelectronics
 #  @file         generate_vcs.py
-#  @date         July, 2021
-#  @version      0.3.1
+#  @date         December, 2021
+#  @version      0.3.2
 #  @brief        Generate vcs info file based on available Git informations
 #
 #  @usage
@@ -41,7 +41,7 @@
 __author__ = "Jonas Scharpf"
 __copyright__ = "Copyright by brainelectronics, ALL RIGHTS RESERVED"
 __credits__ = ["Jonas Scharpf"]
-__version__ = "0.3.1"
+__version__ = "0.3.2"
 __maintainer__ = "Jonas Scharpf"
 __email__ = "jonas@brainelectronics.de"
 __status__ = "Beta"
@@ -50,6 +50,7 @@ import argparse
 import datetime
 import json
 import logging
+from collections import namedtuple
 from pathlib import Path
 import semver
 import sys
@@ -161,19 +162,21 @@ def parse_semver(tag: str,
     try:
         ver = semver.VersionInfo.parse(tag)
         logger.debug('SemVer tag: {}'.format(ver))
-
-        # major, minor, patch, prerelease
-        semver_dict['major_{}version'.format(identifier)] = ver.major
-        semver_dict['minor_{}version'.format(identifier)] = ver.minor
-        semver_dict['patch_{}version'.format(identifier)] = ver.patch
-        semver_dict['prerelease_{}version'.format(identifier)] = ver.prerelease
-        semver_dict['build_{}version'.format(identifier)] = ver.build
-
-        logger.debug('SemVer dict: {}'.format(json.dumps(semver_dict,
-                                                         indent=4,
-                                                         sort_keys=True)))
     except Exception as e:
         logger.warning(e)
+        VersionInfo = namedtuple('VersionInfo', ["major", "minor", "patch", "prerelease", "build"], defaults=(0, 1, 0, None, None))
+        ver = VersionInfo()
+
+    # major, minor, patch, prerelease
+    semver_dict['major_{}version'.format(identifier)] = ver.major
+    semver_dict['minor_{}version'.format(identifier)] = ver.minor
+    semver_dict['patch_{}version'.format(identifier)] = ver.patch
+    semver_dict['prerelease_{}version'.format(identifier)] = ver.prerelease
+    semver_dict['build_{}version'.format(identifier)] = ver.build
+
+    logger.debug('SemVer dict: {}'.format(json.dumps(semver_dict,
+                                                     indent=4,
+                                                     sort_keys=True)))
 
     return semver_dict
 

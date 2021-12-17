@@ -252,7 +252,10 @@ class GitWrapper(ModuleHelper):
         this_repo = self.get_valid_repo(repo=repo)
 
         if this_repo is not None:
-            available_ref = this_repo.git.describe()
+            try:
+                available_ref = this_repo.git.describe()
+            except Exception as e:
+                self.logger.warning(e)
 
         return available_ref
 

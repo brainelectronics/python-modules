@@ -4,8 +4,8 @@
 #
 #  @author       Jonas Scharpf (info@brainelectronics.de) brainelectronics
 #  @file         generate_modbus_json.py
-#  @date         July, 2021
-#  @version      0.3.1
+#  @date         December, 2021
+#  @version      0.4.0
 #  @brief        Generate a JSON file from a modbus register header file
 #
 #  @note         No numbers are allowed in the register name
@@ -39,7 +39,7 @@
 __author__ = "Jonas Scharpf"
 __copyright__ = "Copyright by brainelectronics, ALL RIGHTS RESERVED"
 __credits__ = ["Jonas Scharpf"]
-__version__ = "0.3.1"
+__version__ = "0.4.0"
 __maintainer__ = "Jonas Scharpf"
 __email__ = "info@brainelectronics.de"
 __status__ = "Development"
@@ -182,11 +182,13 @@ def extract_defined_registers(file_path: str, logger: logging.Logger) -> dict:
         # take only line of register definiton
         if line.startswith('#define '):
             # get the register name which must be given in capital letters and
-            # must be more or equal to 3 characters
-            register_name = re.findall(r'[A-Z_]{3,}', line)[0]
+            # must be more or equal to 3 characters, maybe with numbers in it
+            register_name = re.findall(r'[A-Z_0-9]{3,}', line)[0]
 
+            # get the part without the register name
+            tmp_part = line.split(register_name)[-1]
             # get the first number with any length, which shall be the register
-            register_register = re.findall(r'\d+', line)[0]
+            register_register = re.findall(r'\d+', tmp_part)[0]
 
             # loop over all additional registers if any available in the next
             # line
@@ -201,7 +203,10 @@ def extract_defined_registers(file_path: str, logger: logging.Logger) -> dict:
                 i -= 1
 
             # get the description of that register after the doxygen comment
-            register_description = line.split('//< ')[1]
+            try:
+                register_description = line.split('//<')[1].lstrip()
+            except IndexError:
+                register_description = ''
 
             # try to get unit of register description provided as '[something]'
             register_unit_list = re.findall(r'\[(.*?)\]', register_description)
