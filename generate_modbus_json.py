@@ -4,8 +4,8 @@
 #
 #  @author       Jonas Scharpf (info@brainelectronics.de) brainelectronics
 #  @file         generate_modbus_json.py
-#  @date         July, 2021
-#  @version      0.3.1
+#  @date         December, 2021
+#  @version      0.3.2
 #  @brief        Generate a JSON file from a modbus register header file
 #
 #  @note         No numbers are allowed in the register name
@@ -201,7 +201,10 @@ def extract_defined_registers(file_path: str, logger: logging.Logger) -> dict:
                 i -= 1
 
             # get the description of that register after the doxygen comment
-            register_description = line.split('//< ')[1]
+            try:
+                register_description = line.split('//<')[1].lstrip()
+            except IndexError:
+                register_description = ''
 
             # try to get unit of register description provided as '[something]'
             register_unit_list = re.findall(r'\[(.*?)\]', register_description)
