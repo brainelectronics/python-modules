@@ -2,3 +2,4 @@
 # -*- coding: UTF-8 -*-
 
 from .sqlite_wrapper import SQLiteWrapper
+from .mysql_wrapper import MySQLWrapper
