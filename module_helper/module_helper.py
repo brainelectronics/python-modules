@@ -20,6 +20,11 @@ from typing import List
 import yaml
 
 
+class ModuleHelperError(Exception):
+    """Base class for exceptions in this module."""
+    pass
+
+
 class ModuleHelper(object):
     """docstring for ModuleHelper"""
     def __init__(self, logger: logging.Logger = None, quiet: bool = False):
@@ -29,7 +34,8 @@ class ModuleHelper(object):
         self.logger = logger
         self.logger.disabled = quiet
 
-    def create_logger(self, logger_name: str = None) -> logging.Logger:
+    @staticmethod
+    def create_logger(logger_name: str = None) -> logging.Logger:
         """
         Create a logger.
 
@@ -57,10 +63,10 @@ class ModuleHelper(object):
 
         return logger
 
-    def set_logger_verbose_level(self,
-                                 logger: logging.Logger,
+    @staticmethod
+    def set_logger_verbose_level(logger: logging.Logger,
                                  verbose_level: int,
-                                 debug_output: bool):
+                                 debug_output: bool) -> None:
         """
         Set the logger verbose level and debug output
 
@@ -103,12 +109,13 @@ class ModuleHelper(object):
             if option not in ele:
                 result.append(option)
             else:
-                self.logger.info('{} is not a valid option'.format(option))
+                raise ModuleHelperError('{} is not a valid option of {}'.
+                                        format(option, options))
 
         return result
 
-    def check_option_values(self,
-                            options: List[str],
+    @staticmethod
+    def check_option_values(options: List[str],
                             option: str,
                             raise_error: bool = False) -> bool:
         """
@@ -135,7 +142,8 @@ class ModuleHelper(object):
 
         return result
 
-    def format_timestamp(self, timestamp: int, format: str) -> str:
+    @staticmethod
+    def format_timestamp(timestamp: int, format: str) -> str:
         """
         Get timestamp as string in specified format
 
@@ -149,7 +157,8 @@ class ModuleHelper(object):
         """
         return datetime.fromtimestamp(timestamp).strftime(format)
 
-    def get_unix_timestamp(self) -> int:
+    @staticmethod
+    def get_unix_timestamp() -> int:
         """
         Get the unix timestamp.
 
@@ -158,7 +167,8 @@ class ModuleHelper(object):
         """
         return (int(time.time()))
 
-    def get_random_string(self, length: int) -> str:
+    @staticmethod
+    def get_random_string(length: int) -> str:
         """
         Get a random string with characters and numbers.
 
@@ -171,7 +181,8 @@ class ModuleHelper(object):
         return ''.join(random.choices(string.ascii_uppercase + string.digits,
                                       k=length))
 
-    def convert_string_to_uint16t(self, content: str) -> list:
+    @staticmethod
+    def convert_string_to_uint16t(content: str) -> list:
         """
         Convert string to list of uint16_t values
 
@@ -183,7 +194,7 @@ class ModuleHelper(object):
         """
         # convert all characters to their unicode code, 'A' -> 65 ...
         unicode_list = [ord(x) for x in content]
-        self.logger.debug('Content as unicode: {}'.format(unicode_list))
+        # self.logger.debug('Content as unicode: {}'.format(unicode_list))
 
         # iter the list and create tuples
         # represented by 8 bit, two unicode chars can be represented by 16 bit
@@ -195,11 +206,12 @@ class ModuleHelper(object):
         for ele in tuple_list:
             number_list.append((ele[0] << 8) | ele[1])
 
-        self.logger.debug('Content as numbers: {}'.format(number_list))
+        # self.logger.debug('Content as numbers: {}'.format(number_list))
 
         return number_list
 
-    def sort_by_name(self, a_list: list, descending: bool = False) -> bool:
+    @staticmethod
+    def sort_by_name(a_list: list, descending: bool = False) -> bool:
         """
         Sort list by name.
 
@@ -223,7 +235,8 @@ class ModuleHelper(object):
 
         return result
 
-    def is_json(self, content: dict) -> bool:
+    @staticmethod
+    def is_json(content: dict) -> bool:
         """
         Determine whether the specified content is json.
 
@@ -245,10 +258,8 @@ class ModuleHelper(object):
 
         return True
 
-    @classmethod
-    def parser_valid_file(cls,
-                          parser: argparse.ArgumentParser,
-                          arg: str) -> str:
+    @staticmethod
+    def parser_valid_file(parser: argparse.ArgumentParser, arg: str) -> str:
         """
         Determine whether file exists.
 
@@ -266,10 +277,8 @@ class ModuleHelper(object):
         else:
             return arg
 
-    @classmethod
-    def parser_valid_dir(cls,
-                         parser: argparse.ArgumentParser,
-                         arg: str) -> str:
+    @staticmethod
+    def parser_valid_dir(parser: argparse.ArgumentParser, arg: str) -> str:
         """
         Determine whether directory exists.
 
@@ -287,8 +296,8 @@ class ModuleHelper(object):
         else:
             return arg
 
-    @classmethod
-    def check_file(cls, file_path: str, suffix: str) -> bool:
+    @staticmethod
+    def check_file(file_path: str, suffix: str) -> bool:
         """
         Check existance and type of file
 
@@ -309,8 +318,8 @@ class ModuleHelper(object):
 
         return result
 
-    @classmethod
-    def check_folder(cls, folder_path: str) -> bool:
+    @staticmethod
+    def check_folder(folder_path: str) -> bool:
         """
         Check existance of folder
 
@@ -326,6 +335,29 @@ class ModuleHelper(object):
             result = True
 
         return result
+
+    @staticmethod
+    def get_current_path() -> Path:
+        """
+        Get the full path to this file.
+
+        :returns:   The path of this file
+        :rtype:     Path object
+        """
+        return ModuleHelper.get_full_path(base=__file__)
+
+    @staticmethod
+    def get_full_path(base: str) -> Path:
+        """
+        Return full path to parent of path
+
+        :param      base:  The base
+        :type       base:  str
+
+        :returns:   The full path.
+        :rtype:     Path
+        """
+        return Path(base).parent.resolve()
 
     def save_yaml_file(self, path: str, content: dict) -> bool:
         """
