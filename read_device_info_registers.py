@@ -1,11 +1,11 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
 """Read Modbus device register informations based on JSON registers file"""
 #
 #  @author       Jonas Scharpf (info@brainelectronics.de) brainelectronics
 #  @file         read_device_info_registers.py
-#  @date         July, 2021
-#  @version      0.4.0
+#  @date         December, 2021
+#  @version      0.5.0
 #  @brief        Read all registers via RTU modbus or external IP
 #
 #  @required     pymodbus 2.3.0 or higher
@@ -70,31 +70,8 @@ import argparse
 import json
 
 # custom imports
-from modbus_wrapper.modbus_wrapper import ModbusWrapper
-from module_helper.module_helper import ModuleHelper
-
-
-class VAction(argparse.Action):
-    """docstring for VAction"""
-    def __init__(self, option_strings, dest, nargs=None, const=None,
-                 default=None, type=None, choices=None, required=False,
-                 help=None, metavar=None):
-        super(VAction, self).__init__(option_strings, dest, nargs, const,
-                                      default, type, choices, required,
-                                      help, metavar)
-        self.values = 0
-
-    def __call__(self, parser, args, values, option_string=None):
-        """Actual call or action to perform"""
-        if values is None:
-            # do not increment here, so '-v' will use highest log level
-            pass
-        else:
-            try:
-                self.values = int(values)
-            except ValueError:
-                self.values = values.count('v')  # do not count the first '-v'
-        setattr(args, self.dest, self.values)
+from modbus_wrapper import ModbusWrapper
+from module_helper import ModuleHelper, VAction
 
 
 def parse_arguments() -> argparse.Namespace:
@@ -228,13 +205,26 @@ if __name__ == "__main__":
     # create objects
     mb = ModbusWrapper(logger=register_logger, quiet=not args.debug)
 
+    # open connection to device
+    result = mb.setup_connection(device_type=args.connection,
+                                 address=args.address,
+                                 port=port,
+                                 unit=unit,
+                                 baudrate=baudrate)
+    if result is False:
+        logger.error('Failed to setup connection with {device_type} device '
+                     'with bus ID {unit} at {address}:{port}'.
+                     format(device_type=args.connection,
+                            unit=unit,
+                            address=args.address,
+                            port=port))
+        exit(-1)
+
+    # open connection to device
+    mb.connect = True
+
     # create and get the info dict
-    read_content = mb.read_all_registers(device_type=args.connection,
-                                         address=args.address,
-                                         port=port,
-                                         unit=unit,
-                                         baudrate=baudrate,
-                                         check_expectation=args.validate,
+    read_content = mb.read_all_registers(check_expectation=args.validate,
                                          file=args.file)
 
     now = helper.get_unix_timestamp()

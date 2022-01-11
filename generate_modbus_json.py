@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
-# ----------------------------------------------------------------------------
+"""Generate a JSON file from a modbus register header file"""
 #
 #  @author       Jonas Scharpf (info@brainelectronics.de) brainelectronics
 #  @file         generate_modbus_json.py
@@ -51,30 +51,7 @@ from pathlib import Path
 import re
 
 # custom imports
-from module_helper.module_helper import ModuleHelper
-
-
-class VAction(argparse.Action):
-    """docstring for VAction"""
-    def __init__(self, option_strings, dest, nargs=None, const=None,
-                 default=None, type=None, choices=None, required=False,
-                 help=None, metavar=None):
-        super(VAction, self).__init__(option_strings, dest, nargs, const,
-                                      default, type, choices, required,
-                                      help, metavar)
-        self.values = 0
-
-    def __call__(self, parser, args, values, option_string=None):
-        """Actual call or action to perform"""
-        if values is None:
-            pass
-            # do not increment here, so '-v' will use highest log level
-        else:
-            try:
-                self.values = int(values)
-            except ValueError:
-                self.values = values.count('v')  # do not count the first '-v'
-        setattr(args, self.dest, self.values)
+from module_helper import ModuleHelper, VAction
 
 
 def parse_arguments() -> argparse.Namespace:

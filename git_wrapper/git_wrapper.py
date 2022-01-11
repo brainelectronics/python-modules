@@ -16,7 +16,7 @@ from pathlib import Path
 from typing import List
 
 # custom imports
-from module_helper.module_helper import ModuleHelper
+from module_helper import ModuleHelper
 
 
 class GitWrapper(ModuleHelper):

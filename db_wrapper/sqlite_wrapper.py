@@ -14,7 +14,7 @@ import sqlite3
 from typing import List
 
 # custom imports
-from module_helper.module_helper import ModuleHelper
+from module_helper import ModuleHelper
 
 
 class SQLiteWrapper(ModuleHelper):
@@ -25,9 +25,6 @@ class SQLiteWrapper(ModuleHelper):
             logger = self.create_logger()
         self.logger = logger
         self.logger.disabled = quiet
-
-        self.repo = None
-        self.git_dict = dict()
 
         self.logger.debug('SQLiteWrapper init finished')
 

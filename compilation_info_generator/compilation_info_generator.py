@@ -12,8 +12,8 @@ import os
 from pathlib import Path
 
 # custom imports
-from module_helper.module_helper import ModuleHelper
-from git_wrapper.git_wrapper import GitWrapper
+from module_helper import ModuleHelper
+from git_wrapper import GitWrapper
 
 
 class CompilationInfoGenerator(GitWrapper, ModuleHelper):
