@@ -14,6 +14,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0] - 2022-01-11
+### Added
+- First breaking change since 9 releases :)
+- Provide property for latest read register data, bus ID unit, client and
+   connection in `ModbusWrapper` class
+- Connection to device can be setup once with `setup_connection` function
+- Connection status can be set with `connect` and checked with `connection`
+  property
+
+### Changed
+- `read_all_registers` and `write_all_registers` require setup and opened
+  connection beforehand
+- All register operation functions use setup connection and unit instead of
+  function call arguments for client and unit
+- Import level decreased by adjusting content of module `__init__.py` file
+- `F401` is ignored for all `__init__.py` files
+
+### Fixed
+- Shebang of `log_modbus_to_database.py`, `read_device_info_registers.py` and
+  `write_device_info_registers.py` is `python3` instead of unspecific `python`
+- Yet another set of flake8 warnings removed
+
 ## [0.9.0] - 2021-12-17
 ### Added
 - Modbus register name defines can contain numbers
@@ -130,8 +152,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - requirements file with all used python packages
 
 <!-- Links -->
-[Unreleased]: https://github.com/brainelectronics/python-modules/compare/0.9.0...develop
+[Unreleased]: https://github.com/brainelectronics/python-modules/compare/1.0.0...develop
 
+[1.0.0]: https://github.com/brainelectronics/python-modules/compare/0.9.0...1.0.0
 [0.9.0]: https://github.com/brainelectronics/python-modules/compare/0.8.0...0.9.0
 [0.8.0]: https://github.com/brainelectronics/python-modules/compare/0.7.0...0.8.0
 [0.7.0]: https://github.com/brainelectronics/python-modules/compare/0.6.0...0.7.0
