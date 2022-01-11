@@ -245,7 +245,8 @@ python3 write_device_info_registers.py \
 --port=180 \
 --print \
 --pretty \
--v4 -d
+--debug \
+--verbose=4
 ```
 
 ##### Modbus RTU
@@ -259,7 +260,8 @@ python3 write_device_info_registers.py \
 --baudrate=19200 \
 --print \
 --pretty \
--v4 -d
+--debug \
+--verbose=4
 ```
 
 ### Structure info generator
@@ -274,7 +276,7 @@ sorted style. An example output can be found at
 
 ```bash
 python generate_structure_info.py \
---root ./ \
+--root=./ \
 --print \
 --pretty \
 --save \
