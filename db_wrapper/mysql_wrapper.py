@@ -43,7 +43,7 @@ class MySQLWrapper(ModuleHelper):
 
         self.logger.debug('MySQLWrapper init finished')
 
-    def setup_connection(self, db_name: str, **kwargs) -> None:
+    def setup_connection(self, db_name: str) -> None:
         """
         Setup a connection to a database of MySQL instance
 
@@ -119,7 +119,7 @@ class MySQLWrapper(ModuleHelper):
         :param      db_name:  The database name
         :type       db_name:  str
         """
-        sql = '''CREATE DATABASE {}'''.format(db_name)
+        sql = '''CREATE DATABASE IF NOT EXISTS {}'''.format(db_name)
 
         self.logger.debug('Create database with: {}'.format(sql))
         self.execute_sql_query(sql_query=sql)
@@ -147,8 +147,9 @@ class MySQLWrapper(ModuleHelper):
         else:
             table = '{table_name}'.format(table_name=table_name)
 
-        sql = '''CREATE TABLE {table} ({columns})'''.format(table=table,
-                                                            columns=columns)
+        sql = '''CREATE TABLE IF NOT EXISTS {table} ({columns})'''.format(
+            table=table,
+            columns=columns)
 
         self.logger.debug('Create table with: {}'.format(sql))
         self.execute_sql_query(sql_query=sql)
@@ -160,10 +161,10 @@ class MySQLWrapper(ModuleHelper):
         """
         Insert data into table
 
-        :param      content_dict:  The content dictionary
-        :type       content_dict:  dict
         :param      table_name:    The table name
         :type       table_name:    str
+        :param      content_dict:  The content dictionary
+        :type       content_dict:  dict
         :param      db_name:       The database of the table
         :type       db_name:       str, optional
         """
@@ -207,7 +208,7 @@ class MySQLWrapper(ModuleHelper):
 
         :param      table_name:      The table name
         :type       table_name:      str
-        :param      additional_sql:  The additional sql
+        :param      additional_sql:  The additional SQL statement
         :type       additional_sql:  str
         :param      db_name:      The database of the table
         :type       db_name:      str, optional
