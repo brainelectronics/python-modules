@@ -3,3 +3,4 @@
 
 from .sqlite_wrapper import SQLiteWrapper
 from .mysql_wrapper import MySQLWrapper
+from .db_wrapper import DBWrapper
