@@ -49,12 +49,15 @@ python generate_compilation_info.py \
 ### DB wrapper
 
 Request modbus data with the [Modbus wrapper](#modbus-wrapper) and save the
-result as a sqlite3 database with optional backup to file.
+result to a database with optional backup to file.
+
+#### SQLite
 
 This example requests the data of all registers defined in the file of
 [example/modbusRegisters-phoenix.json](example/modbusRegisters-phoenix.json)
 using `tcp` as connection type from a device with the unit (address) `180`
-with an interval of 10 sec for 10 times (iterations). A backup of the in RAM
+with an interval of 10 sec for 10 times (iterations), total runtime is 100
+sec. A backup of the table `modbus_data` in the database `modbus_db` in RAM
 only database is created every `minute` to the folder `backup_folder`. The
 response of each request is printed in human readable, formatted and sorted
 style to the console.
@@ -72,8 +75,56 @@ python log_modbus_to_database.py \
 --pretty \
 --save \
 --output=backup_folder \
+--database_type=sqlite \
+--database=modbus_db \
+--table=modbus_data \
 --debug \
 --verbose=4
+```
+
+#### MySQL
+
+This example requests the data of all registers defined in the file of
+[example/modbusRegisters-MyEVSE.json](example/modbusRegisters-MyEVSE.json)
+using `rtu` as connection type from a device with the unit (address) `10` on
+the bus at `9600` baud, with an interval of 5 sec for 20 times (iterations),
+total runtime is 100 sec. The data is inserted into the table `modbus_data` in the database `MyEVSE_DB` by the user `data_providing_user` authenticated by
+its password `superSecurePassword1` in a MySQL database at `127.0.0.1`. The
+response of each request is printed in human readable, formatted and sorted
+style to the console.
+
+```bash
+python log_modbus_to_database.py \
+--file=example/modbusRegisters-MyEVSE.json \
+--connection=rtu \
+--address=/dev/tty.SLAB_USBtoUART \
+--baudrate=9600 \
+--unit=10 \
+--iterations=5 \
+--interval=20 \
+--print \
+--pretty \
+--save \
+--database_type=mysql \
+--database=MyEVSE_DB \
+--table=modbus_data \
+--user=data_providing_user \
+--password=superSecurePassword1 \
+--url=127.0.0.1 \
+--debug \
+--verbose=4
+```
+
+#### Convert SQLite to MySQL dump
+
+To get a quick convertion between the SQLite and the MySQL format use the
+following command and may import it in a MySQL instance afterwards.
+
+*Some adjustments might be necessary on the converted SQL file before a
+successful import into MySQL*
+
+```bash
+sqlite3 modbus_data-01-12-2022-191219.sqlite3 .dump > modbus_data-01-12-2022-191219.sql
 ```
 
 #### Install phpLiteAdmin (optional)
