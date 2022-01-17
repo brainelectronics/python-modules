@@ -594,11 +594,11 @@ def main() -> None:
                              format(missing_modbus_keys))
 
             # print table content to console with logger
-            print_table_content(wrapper=dbw,
-                                db_type=database_type,
-                                db=db,
-                                table_name=table_name,
-                                logger=logger)
+            # print_table_content(wrapper=dbw,
+            #                     db_type=database_type,
+            #                     db=db,
+            #                     table_name=table_name,
+            #                     logger=logger)
 
             # do print as last step
             if print_result:
