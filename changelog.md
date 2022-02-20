@@ -31,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - `log_modbus_to_database` script uses new Modbus request API and opens a
   connection before a request
+- Add missing length definitions in example modbus register setting file
 - Some typos in comments
 
 ## [1.0.0] - 2022-01-11
