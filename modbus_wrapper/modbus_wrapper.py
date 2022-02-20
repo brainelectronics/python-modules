@@ -78,7 +78,8 @@ class ModbusWrapper(ModuleHelper):
             # MyEVSE
             epoch_datetime = datetime.datetime(year=1970, month=1, day=1)
             creation_day = datetime.timedelta(days=value)
-            return (epoch_datetime + creation_day).strftime("%m-%d-%Y")
+            # use MySQL TIMESTAMP compatible format, see ISO 8601
+            return (epoch_datetime + creation_day).strftime("%Y-%m-%d")
         elif key == 'DEVICE_MAC_IREG':
             # MyEVSE
             return ':'.join(format(x, 'x') for x in value)

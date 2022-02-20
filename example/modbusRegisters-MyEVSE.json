@@ -1,0 +1,287 @@
+{
+    "COILS": {
+        "SYSTEM_RESET_COIL": {
+            "register": 10,
+            "len": 1,
+            "description": "perform controller reset on 1",
+            "range": "",
+            "unit": ""
+        },
+        "CONFIG_RESET_COIL": {
+            "register": 11,
+            "len": 1,
+            "description": "perform EEPROM config reset on 1",
+            "range": "",
+            "unit": ""
+        },
+        "USE_MB_CURRENT_COIL": {
+            "register": 20,
+            "len": 1,
+            "description": "use CHARGING_CURRENT_IREG value",
+            "range": "",
+            "unit": ""
+        }
+    },
+    "HREGS": {
+        "DEVICE_ID_HREG": {
+            "register": 10,
+            "len": 1,
+            "description": "modbus address of this device",
+            "range": "",
+            "unit": ""
+        },
+        "CHARGING_CURRENT_HREG": {
+            "register": 21,
+            "len": 1,
+            "description": "[A] charging current, requires USE_MB_CURRENT_COIL",
+            "range": "",
+            "unit": "A"
+        }
+    },
+    "ISTS": {
+        "SSR_STATE_ISTS": {
+            "register": 10,
+            "len": 1,
+            "description": "state of the SSR",
+            "range": "",
+            "unit": ""
+        },
+        "ENABLE_BUTTON_STATE_ISTS": {
+            "register": 11,
+            "len": 1,
+            "description": "state of the enable button",
+            "range": "",
+            "unit": ""
+        },
+        "CHARGING_ACTIVE_ISTS": {
+            "register": 12,
+            "len": 1,
+            "description": "currently charging or not",
+            "range": "",
+            "unit": ""
+        },
+        "DISABLE_WIFI_ISTS": {
+            "register": 13,
+            "len": 1,
+            "description": "disable WiFi of ESP device",
+            "range": "",
+            "unit": ""
+        }
+    },
+    "IREGS": {
+        "LOOP_TIME_US_IREG": {
+            "register": 10,
+            "len": 2,
+            "description": "[us] Time for one loop cycle",
+            "range": "",
+            "unit": "us"
+        },
+        "UPTIME_MS_IREG": {
+            "register": 12,
+            "len": 2,
+            "description": "[ms] System uptime",
+            "range": "",
+            "unit": "ms"
+        },
+        "DEVICE_UUID_IREG": {
+            "register": 14,
+            "len": 6,
+            "description": "UUID of the device microcontroller",
+            "range": "",
+            "unit": ""
+        },
+        "SW_VERSION_IREG": {
+            "register": 20,
+            "len": 2,
+            "description": "Software version of the device",
+            "range": "",
+            "unit": ""
+        },
+        "FREE_RAM_IREG": {
+            "register": 22,
+            "len": 2,
+            "description": "[byte] estimated available RAM",
+            "range": "",
+            "unit": "byte"
+        },
+        "PROGRAM_RAM_IREG": {
+            "register": 24,
+            "len": 2,
+            "description": "[byte] used RAM of application",
+            "range": "",
+            "unit": "byte"
+        },
+        "SW_VERSION_MAJOR_IREG": {
+            "register": 30,
+            "len": 1,
+            "description": "Major version of the software",
+            "range": "",
+            "unit": ""
+        },
+        "SW_VERSION_MINOR_IREG": {
+            "register": 31,
+            "len": 1,
+            "description": "Minor version of the software",
+            "range": "",
+            "unit": ""
+        },
+        "SW_VERSION_PATCH_IREG": {
+            "register": 32,
+            "len": 1,
+            "description": "Patch version of the software",
+            "range": "",
+            "unit": ""
+        },
+        "HW_VERSION_MAJOR_IREG": {
+            "register": 33,
+            "len": 1,
+            "description": "Major version of the hardware",
+            "range": "",
+            "unit": ""
+        },
+        "HW_VERSION_MINOR_IREG": {
+            "register": 34,
+            "len": 1,
+            "description": "Minor version of the hardware",
+            "range": "",
+            "unit": ""
+        },
+        "HW_VERSION_PATCH_IREG": {
+            "register": 35,
+            "len": 1,
+            "description": "Patch version of the hardware",
+            "range": "",
+            "unit": ""
+        },
+        "CREATION_DATE_IREG": {
+            "register": 36,
+            "len": 1,
+            "description": "Creation date of the software",
+            "range": "",
+            "unit": ""
+        },
+        "COMMIT_SHA_IREG": {
+            "register": 37,
+            "len": 4,
+            "description": "Used commit SHA",
+            "range": "",
+            "unit": ""
+        },
+        "CHARGING_BEGIN_TIME_IREG": {
+            "register": 51,
+            "len": 2,
+            "description": "[ms] charging begin timestamp",
+            "range": "",
+            "unit": "ms"
+        },
+        "CHARGING_END_TIME_IREG": {
+            "register": 53,
+            "len": 2,
+            "description": "[ms] charging end timestamp",
+            "range": "",
+            "unit": "ms"
+        },
+        "CHARGING_DURATION_IREG": {
+            "register": 55,
+            "len": 2,
+            "description": "[ms] duration of last charge",
+            "range": "",
+            "unit": "ms"
+        },
+        "COMPLETE_CHARGING_CYCLES_IREG": {
+            "register": 57,
+            "len": 2,
+            "description": "completed charging cycles",
+            "range": "",
+            "unit": ""
+        },
+        "CHARGING_CURRENT_IREG": {
+            "register": 59,
+            "len": 1,
+            "description": "[A] active current for charging",
+            "range": "",
+            "unit": "A"
+        },
+        "CHARGING_DUTYCYCLE_IREG": {
+            "register": 60,
+            "len": 1,
+            "description": "[0, 255] duty cycle of applied charging current",
+            "range": "0, 255",
+            "unit": ""
+        },
+        "CABLE_AMPACITY_IREG": {
+            "register": 61,
+            "len": 1,
+            "description": "[A] ampacity of the cable",
+            "range": "",
+            "unit": "A"
+        },
+        "CHARGING_STATE_IREG": {
+            "register": 62,
+            "len": 1,
+            "description": "statemaschine state based on CP",
+            "range": "",
+            "unit": ""
+        },
+        "RAW_PP_VALUE_MEDIAN_IREG": {
+            "register": 100,
+            "len": 1,
+            "description": "[0, 4096] median ADC value of PP",
+            "range": "0, 4096",
+            "unit": ""
+        },
+        "PP_VOLTAGE_MEDIAN_IREG": {
+            "register": 101,
+            "len": 1,
+            "description": "[mV] median voltage of PP",
+            "range": "",
+            "unit": "mV"
+        },
+        "RAW_CP_LOW_VALUE_MEDIAN_IREG": {
+            "register": 102,
+            "len": 1,
+            "description": "[0, 4096] median ADC value of low CP signal",
+            "range": "0, 4096",
+            "unit": ""
+        },
+        "RAW_CP_HIGH_VALUE_MEDIAN_IREG": {
+            "register": 103,
+            "len": 1,
+            "description": "[0, 4096] median ADC value of high CP signal",
+            "range": "0, 4096",
+            "unit": ""
+        },
+        "CP_LOW_VOLTAGE_MEDIAN_IREG": {
+            "register": 104,
+            "len": 1,
+            "description": "[mV] median low voltage of CP",
+            "range": "",
+            "unit": "mV"
+        },
+        "CP_HIGH_VOLTAGE_MEDIAN_IREG": {
+            "register": 105,
+            "len": 1,
+            "description": "[mV] median high voltage of CP",
+            "range": "",
+            "unit": "mV"
+        },
+        "MEASUREMENT_TIME_CP_IREG": {
+            "register": 106,
+            "len": 1,
+            "description": "[us] time for CP measurement cycle",
+            "range": "",
+            "unit": "us"
+        },
+        "MEASUREMENT_TIME_PP_IREG": {
+            "register": 107,
+            "len": 1,
+            "description": "[us] time for PP measurement cycle",
+            "range": "",
+            "unit": "us"
+        }
+    },
+    "META": {
+        "created": "10.11.2020",
+        "modified": "07.06.2021"
+    }
+}

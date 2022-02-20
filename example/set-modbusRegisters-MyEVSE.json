@@ -22,6 +22,7 @@
     "HREGS": {
         "CHARGING_CURRENT_HREG": {
             "register": 21,
+            "len": 1,
             "val": 21,
             "description": "[A] charging current, requires USE_MB_CURRENT_COIL",
             "unit": "A"
@@ -29,7 +30,7 @@
     },
     "META": {
         "created": "23.08.2021",
-        "modified": "23.08.2021"
+        "modified": "20.02.2022"
     },
     "CONNECTION": {
         "type": "rtu",

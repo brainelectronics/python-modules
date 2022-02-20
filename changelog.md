@@ -14,6 +14,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2022-02-20
+### Added
+- `mysql_wrapper.py` added to `db_wrapper`
+- Description for converting `sqlite3` to `sql` in `README`
+- Usage example for Modbus logging to MySQL database in `README`
+- Modbus register map of MyEVSE added to [example](example) folder
+- `mysql-connector-python` added to `requirements.txt`
+
+### Changed
+- Timestamp is saved as `YYYY-MM-DD HH:MM:SS` in `modbus_wrapper` for ISO 8601
+- Update modbus data files in [example](example) with new timestamp format
+- `log_modbus_to_database` script can be used with SQlite or MySQL
+- `requirements.txt` updated with info about modules using specific package
+
+### Fixed
+- `log_modbus_to_database` script uses new Modbus request API and opens a
+  connection before a request
+- Add missing length definitions in example modbus register setting file
+- Some typos in comments
+
 ## [1.0.0] - 2022-01-11
 ### Added
 - First breaking change since 9 releases :)
@@ -152,8 +172,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - requirements file with all used python packages
 
 <!-- Links -->
-[Unreleased]: https://github.com/brainelectronics/python-modules/compare/1.0.0...develop
+[Unreleased]: https://github.com/brainelectronics/python-modules/compare/1.1.0...develop
 
+[1.1.0]: https://github.com/brainelectronics/python-modules/compare/1.0.0...1.1.0
 [1.0.0]: https://github.com/brainelectronics/python-modules/compare/0.9.0...1.0.0
 [0.9.0]: https://github.com/brainelectronics/python-modules/compare/0.8.0...0.9.0
 [0.8.0]: https://github.com/brainelectronics/python-modules/compare/0.7.0...0.8.0
