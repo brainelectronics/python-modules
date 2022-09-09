@@ -88,9 +88,9 @@ import sqlite3
 from typing import Tuple, Union
 
 # custom imports
+from be_helpers import ModuleHelper
 from db_wrapper import DBWrapper, MySQLWrapper, SQLiteWrapper
 from modbus_wrapper import ModbusWrapper
-from module_helper import ModuleHelper, VAction
 
 
 def setup_database(wrapper: Union[SQLiteWrapper, MySQLWrapper],
@@ -315,9 +315,14 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument('-d', '--debug',
                         action='store_true',
                         help='Output logger messages to stderr')
-    parser.add_argument('-v', '--verbose',
+    parser.add_argument('-v',
+                        default=0,
+                        action='count',
+                        dest='verbose',
+                        help='Set level of verbosity')
+    parser.add_argument('--verbose',
                         nargs='?',
-                        action=VAction,
+                        type=int,
                         dest='verbose',
                         help='Set level of verbosity')
 

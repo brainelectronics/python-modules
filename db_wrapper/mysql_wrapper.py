@@ -13,7 +13,7 @@ import mysql.connector
 from typing import List
 
 # custom imports
-from module_helper import ModuleHelper
+from be_helpers import ModuleHelper
 
 
 class MySQLWrapper(ModuleHelper):

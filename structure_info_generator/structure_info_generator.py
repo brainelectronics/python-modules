@@ -10,7 +10,7 @@ import logging
 from pathlib import Path
 
 # custom imports
-from module_helper import ModuleHelper
+from be_helpers import ModuleHelper
 
 
 class StructureInfoGenerator(ModuleHelper):
