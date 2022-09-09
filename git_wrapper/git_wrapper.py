@@ -13,7 +13,7 @@ from git.exc import InvalidGitRepositoryError, NoSuchPathError, GitCommandError
 import logging
 import os
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 
 # custom imports
 from be_helpers import ModuleHelper
@@ -237,15 +237,19 @@ class GitWrapper(ModuleHelper):
 
         return tags_of_branch
 
-    def get_available_ref(self, repo=None) -> str:
+    def get_available_ref(self,
+                          repo=None,
+                          options: Optional[str] = "--tags") -> str:
         """
         Get the most recent tag that is reachable from a commit.
 
-        :param      repo:       The repo
-        :type       repo:       Repo, optional
+        :param      repo:     The repo
+        :type       repo:     Repo, optional
+        :param      options:  The options to describe the reference
+        :type       options:  Optional[str]
 
         :returns:   The available reference name.
-        :rtype:     string
+        :rtype:     str
         """
         available_ref = ""
 
@@ -253,7 +257,8 @@ class GitWrapper(ModuleHelper):
 
         if this_repo is not None:
             try:
-                available_ref = this_repo.git.describe()
+                # use "--tags" to get also not annotated tags
+                available_ref = this_repo.git.describe(options)
             except Exception as e:
                 self.logger.warning(e)
 
