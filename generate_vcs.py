@@ -56,8 +56,8 @@ import semver
 import sys
 
 # custom imports
+from be_helpers import ModuleHelper
 from git_wrapper import GitWrapper
-from module_helper import ModuleHelper, VAction
 
 
 def parse_arguments() -> argparse.Namespace:
@@ -75,9 +75,14 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument('-d', '--debug',
                         action='store_true',
                         help='Output logger messages to stderr')
-    parser.add_argument('-v', "--verbose",
+    parser.add_argument('-v',
+                        default=0,
+                        action='count',
+                        dest='verbose',
+                        help='Set level of verbosity')
+    parser.add_argument('--verbose',
                         nargs='?',
-                        action=VAction,
+                        type=int,
                         dest='verbose',
                         help='Set level of verbosity')
 
@@ -312,6 +317,7 @@ if __name__ == '__main__':
     sw_semver_dict = parse_semver(tag=git_dict['describe'],
                                   identifier='sw',
                                   logger=logger)
+
     if hw_semver:
         hw_semver_dict = parse_semver(tag=hw_semver,
                                       identifier='hw',
@@ -326,7 +332,7 @@ if __name__ == '__main__':
     vcs_template_path = current_path.parent / 'example'
     vcs_template_file = vcs_template_path / 'vcsInfo.h.template'
     logger.debug('VCS template path: {}'.format(vcs_template_file))
-    raw_lines = helper.get_raw_file_content(file_path=vcs_template_file)
+    raw_lines = helper.get_raw_file_content(path=vcs_template_file)
     vcs_template_lines = raw_lines.splitlines()
 
     if len(vcs_template_lines):
@@ -354,7 +360,7 @@ if __name__ == '__main__':
                 else:
                     output_file = output_path
 
-                result = helper.save_list_to_file(file_path=output_file,
+                result = helper.save_list_to_file(path=output_file,
                                                   content=filled_vcs_lines,
                                                   with_new_line=True)
                 logger.debug('Result of saving info {}'.format(result))
