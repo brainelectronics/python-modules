@@ -70,8 +70,8 @@ import argparse
 import json
 
 # custom imports
+from be_helpers import ModuleHelper
 from modbus_wrapper import ModbusWrapper
-from module_helper import ModuleHelper, VAction
 
 
 def parse_arguments() -> argparse.Namespace:
@@ -89,9 +89,14 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument('-d', '--debug',
                         action='store_true',
                         help='Output logger messages to stderr')
-    parser.add_argument('-v', '--verbose',
+    parser.add_argument('-v',
+                        default=0,
+                        action='count',
+                        dest='verbose',
+                        help='Set level of verbosity')
+    parser.add_argument('--verbose',
                         nargs='?',
-                        action=VAction,
+                        type=int,
                         dest='verbose',
                         help='Set level of verbosity')
 
