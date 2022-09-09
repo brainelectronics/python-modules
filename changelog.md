@@ -11,8 +11,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 ### Fixed
 -->
+<!--
+RegEx for release version from file
+r"^\#\# \[\d{1,}[.]\d{1,}[.]\d{1,}\] \- \d{4}\-\d{2}-\d{2}$"
+-->
 
-## [Unreleased]
+## Released
+## [1.2.0] - 2022-09-09
+### Added
+- Install `be-helpers` package with [`requirements.txt`](requirements.txt)
+- Badges and TOC in `README`
+
+### Changed
+- Import `be_helpers` instead of `module_helper` in all modules and scripts
+- Action performed by `VAction` replaced with `count` action of argparse
+  argument `--verbose, -v`
+
+### Removed
+- Remove `module_helper`
+- Import of `VAction` from all scripts
+
+## Fixed
+- `get_available_ref()` of `GitWrapper` takes also not annotated tags into
+  account, see [#8][ref-issue-8]
 
 ## [1.1.0] - 2022-02-20
 ### Added
@@ -172,8 +193,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - requirements file with all used python packages
 
 <!-- Links -->
-[Unreleased]: https://github.com/brainelectronics/python-modules/compare/1.1.0...develop
+[Unreleased]: https://github.com/brainelectronics/python-modules/compare/1.2.0...develop
 
+[1.2.0]: https://github.com/brainelectronics/python-modules/compare/1.1.0...1.2.0
 [1.1.0]: https://github.com/brainelectronics/python-modules/compare/1.0.0...1.1.0
 [1.0.0]: https://github.com/brainelectronics/python-modules/compare/0.9.0...1.0.0
 [0.9.0]: https://github.com/brainelectronics/python-modules/compare/0.8.0...0.9.0
@@ -185,3 +207,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [0.3.0]: https://github.com/brainelectronics/python-modules/compare/0.2.0...0.3.0
 [0.2.0]: https://github.com/brainelectronics/python-modules/compare/0.1.0...0.2.0
 [0.1.0]: https://github.com/brainelectronics/python-modules/tree/0.1.0
+
+[ref-issue-8]: https://github.com/brainelectronics/python-modules/issues/8
+
