@@ -12,7 +12,7 @@ import os
 from pathlib import Path
 
 # custom imports
-from module_helper import ModuleHelper
+from be_helpers import ModuleHelper
 from git_wrapper import GitWrapper
 
 

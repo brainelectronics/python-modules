@@ -19,7 +19,7 @@ from typing import Tuple
 from typing import Union
 
 # custom imports
-from module_helper import ModuleHelper
+from be_helpers import ModuleHelper
 
 
 class ModbusWrapper(ModuleHelper):
