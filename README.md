@@ -1,5 +1,11 @@
 # Python modules
 
+<!-- [![Downloads](https://pepy.tech/badge/be-helpers)](https://pepy.tech/project/be-helpers) -->
+![Release](https://img.shields.io/github/v/release/brainelectronics/python-modules?include_prereleases&color=success)
+![Python](https://img.shields.io/badge/python3-Ok-green.svg)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+<!-- [![codecov](https://codecov.io/github/brainelectronics/be-helpers/branch/main/graph/badge.svg)](https://app.codecov.io/github/brainelectronics/be-helpers) -->
+
 Custom brainelectronics python modules and wrappers
 
 ---------------
@@ -8,6 +14,29 @@ Custom brainelectronics python modules and wrappers
 
 This is a collection of python modules required for MyEVSE and other
 brainelectronics projects.
+
+<!-- MarkdownTOC -->
+
+- [Available generators](#available-generators)
+- [Setup](#setup)
+	- [Compilation info generator](#compilation-info-generator)
+	- [DB wrapper](#db-wrapper)
+		- [SQLite](#sqlite)
+		- [MySQL](#mysql)
+		- [Convert SQLite to MySQL dump](#convert-sqlite-to-mysql-dump)
+		- [Install phpLiteAdmin \(optional\)](#install-phpliteadmin-optional)
+	- [Git wrapper](#git-wrapper)
+	- [Modbus JSON Generator](#modbus-json-generator)
+	- [Modbus wrapper](#modbus-wrapper)
+		- [Reading data](#reading-data)
+			- [Modbus TCP](#modbus-tcp)
+			- [Modbus RTU](#modbus-rtu)
+		- [Writing data](#writing-data)
+			- [Modbus TCP](#modbus-tcp-1)
+			- [Modbus RTU](#modbus-rtu-1)
+	- [Structure info generator](#structure-info-generator)
+
+<!-- /MarkdownTOC -->
 
 ## Available generators
 
