@@ -27,7 +27,7 @@
 #   --database_type=sqlite \
 #   --database=modbus_db \
 #   --table=modbus_data \
-#   -v4 -d
+#   -vvvv -d
 #
 #  python3 log_modbus_to_database.py \
 #   --file=example/modbusRegisters-phoenix.json \
@@ -37,7 +37,7 @@
 #   --iterations=5 \
 #   --interval=15 \
 #   --backup=minute \
-#   -v4 -d
+#   -vvvv -d
 #
 #  optional arguments:
 #   -h, --help
@@ -67,7 +67,7 @@
 #
 #   -d, --debug     Flag, Output logger messages to stderr (default: False)
 #   -v, --verbose   Verbosity level (default: None), sets debug flag to True
-#                   '-v3' or '-vvvv' == INFO
+#                   e.g. '-vvvv' == INFO
 #
 # ----------------------------------------------------------------------------
 

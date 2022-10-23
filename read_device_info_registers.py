@@ -21,7 +21,7 @@
 #   --pretty \
 #   --save \
 #   --output info.json \
-#   -v4 -d
+#   -vvvv -d
 #
 #  python3 read_device_info_registers.py \
 #   --file=example/modbusRegisters-phoenix.json \
@@ -32,7 +32,7 @@
 #   --pretty \
 #   --save \
 #   --output info.json \
-#   -v4 -d
+#   -vvvv -d
 #
 #  optional arguments:
 #   -h, --help
@@ -54,7 +54,7 @@
 #
 #   -d, --debug     Flag, Output logger messages to stderr (default: False)
 #   -v, --verbose   Verbosity level (default: None), sets debug flag to True
-#                   '-v3' or '-vvvv' == INFO
+#                   e.g. '-vvvv' == INFO
 #
 # ----------------------------------------------------------------------------
 

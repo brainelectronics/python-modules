@@ -19,7 +19,7 @@
 #   --baudrate=19200 \
 #   --print \
 #   --pretty \
-#   -v4 -d
+#   -vvvv -d
 #
 #  python3 write_device_info_registers.py \
 #   --file=example/set-modbusRegisters-MyEVSE.json \
@@ -28,7 +28,7 @@
 #   --port=180 \
 #   --print \
 #   --pretty \
-#   -v4 -d
+#   -vvvv -d
 #
 #  optional arguments:
 #   -h, --help
@@ -46,7 +46,7 @@
 #
 #   -d, --debug     Flag, Output logger messages to stderr (default: False)
 #   -v, --verbose   Verbosity level (default: None), sets debug flag to True
-#                   '-v3' or '-vvvv' == INFO
+#                   e.g. '-vvvv' == INFO
 #
 # ----------------------------------------------------------------------------
 
