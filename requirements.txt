@@ -1,7 +1,7 @@
 GitPython>=3.1.14,<4                # required by git_wrapper
-pymodbus>=2.4.0,<3                  # required by modbus_wrapper
 semver>=2.13.0,<3                   # required by generate_vcs.py
 mysql-connector-python>=8.0.27,<9   # required by db_wrapper
 
 # custom brainelectronics packages
 be-helpers>=0.1.0,<1                # required by all other modules
+be-modbus-wrapper>=0.1.0,<1

@@ -17,6 +17,13 @@ r"^\#\# \[\d{1,}[.]\d{1,}[.]\d{1,}\] \- \d{4}\-\d{2}-\d{2}$"
 -->
 
 ## Released
+## [1.3.0] - 2022-10-23
+### Changed
+- `modbus_wrapper` folder replaced by [`be-modbus-wrapper`][ref-modbus-wrapper]
+  package, see [#7][ref-issue-7]
+- Module imports of `log_modbus_to_database`, `read_device_info_registers` and
+  `write_device_info_registers` scripts updated
+
 ## [1.2.0] - 2022-09-09
 ### Added
 - Install `be-helpers` package with [`requirements.txt`](requirements.txt)
@@ -193,8 +200,9 @@ r"^\#\# \[\d{1,}[.]\d{1,}[.]\d{1,}\] \- \d{4}\-\d{2}-\d{2}$"
 - requirements file with all used python packages
 
 <!-- Links -->
-[Unreleased]: https://github.com/brainelectronics/python-modules/compare/1.2.0...develop
+[Unreleased]: https://github.com/brainelectronics/python-modules/compare/1.3.0...develop
 
+[1.3.0]: https://github.com/brainelectronics/python-modules/compare/1.2.0...1.3.0
 [1.2.0]: https://github.com/brainelectronics/python-modules/compare/1.1.0...1.2.0
 [1.1.0]: https://github.com/brainelectronics/python-modules/compare/1.0.0...1.1.0
 [1.0.0]: https://github.com/brainelectronics/python-modules/compare/0.9.0...1.0.0
@@ -208,5 +216,7 @@ r"^\#\# \[\d{1,}[.]\d{1,}[.]\d{1,}\] \- \d{4}\-\d{2}-\d{2}$"
 [0.2.0]: https://github.com/brainelectronics/python-modules/compare/0.1.0...0.2.0
 [0.1.0]: https://github.com/brainelectronics/python-modules/tree/0.1.0
 
+[ref-issue-7]: https://github.com/brainelectronics/python-modules/issues/7
 [ref-issue-8]: https://github.com/brainelectronics/python-modules/issues/8
 
+[ref-modbus-wrapper]: https://pypi.org/project/be-modbus-wrapper/
