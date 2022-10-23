@@ -4,11 +4,11 @@
 #
 #  @author       Jonas Scharpf (info@brainelectronics.de) brainelectronics
 #  @file         log_modbus_to_database.py.py
-#  @date         January, 2022
-#  @version      0.2.0
+#  @date         October, 2022
+#  @version      0.3.0
 #  @brief        Read all registers via RTU modbus or external IP into database
 #
-#  @required     pymodbus>=2.3.0,<3, pyserial>=3.5,<4
+#  @required     be-modbus-wrapper>=0.1.0,<1, pyserial>=3.5,<4
 #
 #  @usage
 #  python3 log_modbus_to_database.py \
@@ -74,7 +74,7 @@
 __author__ = "Jonas Scharpf"
 __copyright__ = "Copyright by brainelectronics, ALL RIGHTS RESERVED"
 __credits__ = ["Jonas Scharpf"]
-__version__ = "0.2.0"
+__version__ = "0.3.0"
 __maintainer__ = "Jonas Scharpf"
 __email__ = "info@brainelectronics.de"
 __status__ = "Beta"
@@ -90,7 +90,7 @@ from typing import Tuple, Union
 # custom imports
 from be_helpers import ModuleHelper
 from db_wrapper import DBWrapper, MySQLWrapper, SQLiteWrapper
-from modbus_wrapper import ModbusWrapper
+from be_modbus_wrapper import ModbusWrapper
 
 
 def setup_database(wrapper: Union[SQLiteWrapper, MySQLWrapper],

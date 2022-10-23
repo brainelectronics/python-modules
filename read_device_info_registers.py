@@ -4,11 +4,11 @@
 #
 #  @author       Jonas Scharpf (info@brainelectronics.de) brainelectronics
 #  @file         read_device_info_registers.py
-#  @date         December, 2021
-#  @version      0.5.0
+#  @date         October, 2022
+#  @version      0.6.0
 #  @brief        Read all registers via RTU modbus or external IP
 #
-#  @required     pymodbus 2.3.0 or higher
+#  @required     be-modbus-wrapper>=0.1.0,<1
 #
 #  @usage
 #  python3 read_device_info_registers.py \
@@ -61,7 +61,7 @@
 __author__ = "Jonas Scharpf"
 __copyright__ = "Copyright by brainelectronics, ALL RIGHTS RESERVED"
 __credits__ = ["Jonas Scharpf"]
-__version__ = "0.4.0"
+__version__ = "0.6.0"
 __maintainer__ = "Jonas Scharpf"
 __email__ = "info@brainelectronics.de"
 __status__ = "Beta"
@@ -71,7 +71,7 @@ import json
 
 # custom imports
 from be_helpers import ModuleHelper
-from modbus_wrapper import ModbusWrapper
+from be_modbus_wrapper import ModbusWrapper
 
 
 def parse_arguments() -> argparse.Namespace:
